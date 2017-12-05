@@ -46,6 +46,14 @@ begin
    WindowHandle:=ConsoleWindowCreate(ConsoleDeviceGetDefault,CONSOLE_POSITION_FULL,True);
  ConsoleWindowWriteLn(WindowHandle,'Hello Ultibo!');
 
+ {Wait for C: drive to be ready}
+ while not DirectoryExists('C:\') do
+  begin
+   {Sleep for a second}
+   Sleep(1000);
+  end;
+    ConsoleWindowWriteLn(WindowHandle,'Directory now seems mounted!');
+
   LoadPpm(WindowHandle);
   FramebufferDevicePutRect(Fb, 0, 0, PpmBuffer, PpmWidth, PpmHeight, 0,  FRAMEBUFFER_TRANSFER_DMA);
   FreeMem(PpmBuffer);
