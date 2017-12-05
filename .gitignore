@@ -1,3 +1,8 @@
+*.elf
+*.lps
 *.o
 *.ppu
 GimpPpmTest
+backup/
+kernel7.img
+lib/
