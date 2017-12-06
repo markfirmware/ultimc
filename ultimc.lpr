@@ -20,7 +20,8 @@ uses
   Ultibo,
   Console,
   Framebuffer,
-  GimpPpm
+  GimpPpm,
+  Glute
 ;
 
 
@@ -54,9 +55,13 @@ begin
   end;
     ConsoleWindowWriteLn(WindowHandle,'Directory now seems mounted!');
 
-  LoadPpm(WindowHandle);
+  LoadPpm('logo.ppm');
   FramebufferDevicePutRect(Fb, 0, 0, PpmBuffer, PpmWidth, PpmHeight, 0,  FRAMEBUFFER_TRANSFER_DMA);
   FreeMem(PpmBuffer);
+
+  writeln('this seems to work     ........ writeln   .. yipee ');
+
+  Tokenise('    hello world0.1');
 
    ThreadHalt(0);
 end.

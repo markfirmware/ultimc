@@ -8,45 +8,43 @@ interface
 
 
 uses
-         {RaspberryPi3,}
+	{
   GlobalConfig,
- { GlobalConst, }
   GlobalTypes,
   Platform,
   Threads,
-{  SysUtils, }
   Classes,
   Ultibo,
-	Sysutils, Console;
+  Console,
+  }
+	Sysutils;
 
 { procedure LoadPpm(); }
-procedure LoadPpm(var WindowHandle:TWindowHandle);
+	{ procedure LoadPpm(var WindowHandle:TWindowHandle); }
+procedure LoadPpm(filename:String);
 
 var PpmBuffer: PByte; { caller of LoadPpm() must FreeMem this buffer }
         PpmWidth, PpmHeight : Integer;
-        PpmStatus : Integer;
+	{        PpmStatus : Integer; }
+	
 
 implementation
 
-procedure LoadPpm(var WindowHandle:TWindowHandle);
+{procedure LoadPpm(var WindowHandle:TWindowHandle); }
+procedure LoadPpm(filename:String);
 var
 	tfIn : TextFile;
-        fname : String;
+	{ fname : String; }
 	maxval, row, col, r, g, b, offset: Integer;
 begin
-        fname := 'c:\logo.ppm';
+	{	PpmStatus := 0; }
 
-        if FileExists(fname) then
-             ConsoleWindowWriteLn(WindowHandle,'File exists')
-             else
-               ConsoleWindowWriteLn(WindowHandle,'File not exists');
+	{ fname := 'c:\logo.ppm'; }
 
+        if not FileExists(filename) then raise exception.create('LoadPpm:File does not exist:' + filename);
 
-        ConsoleWindowWriteLn(WindowHandle,'Stage 1');
-	AssignFile(tfIn, fname);
-        ConsoleWindowWriteLn(WindowHandle,'Assigned ok');
+	AssignFile(tfIn, filename);
 	reset(tfIn);
-        ConsoleWindowWriteLn(WindowHandle,'reset ok');
 
 	readln(tfIn); { s/b P3 }
 	readln(tfIn); { s/b comment about being created by GIMP }
@@ -54,7 +52,6 @@ begin
 	read(tfIn, PpmHeight);
 	read(tfIn, maxval);
 	assert(maxval <= 255, 'PPM maxval too high for me to handle');
-                ConsoleWindowWriteLn(WindowHandle,'Stage 3');
 
 
 	GetMem(PpmBuffer, PpmWidth*PpmHeight*4);
@@ -73,7 +70,6 @@ begin
 		end;
 
 	CloseFile(tfIn);
-                ConsoleWindowWriteLn(WindowHandle,'Stage Final');
 
 
 end;

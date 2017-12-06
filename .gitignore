@@ -3,6 +3,7 @@
 *.o
 *.ppu
 GimpPpmTest
+GluteTest
 backup/
 kernel7.img
 lib/

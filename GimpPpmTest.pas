@@ -6,7 +6,7 @@ uses
 	GimpPpm;
 
 begin
-	LoadPpm();
+	LoadPpm('logo.ppm');
 	FreeMem(PpmBuffer);
 end.
 

@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+nohup  $HOME/ultibo/core/lazarus >/dev/null & 
