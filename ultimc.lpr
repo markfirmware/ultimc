@@ -21,7 +21,7 @@ uses
   Console,
   Framebuffer,
   GimpPpm,
-  Glute
+  Glute, GimpPpmGlute
 ;
 
 
@@ -41,6 +41,7 @@ begin
   Sleep(100);
   FrameBufferDeviceSetDefault(Fb);
   FrameBufferDeviceGetProperties(Fb,@FrameBufferProperties);
+  SetGimpPpmGluteFb(Fb);
 
   FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
@@ -55,13 +56,12 @@ begin
   end;
     ConsoleWindowWriteLn(WindowHandle,'Directory now seems mounted!');
 
-  LoadPpm('logo.ppm');
-  FramebufferDevicePutRect(Fb, 0, 0, PpmBuffer, PpmWidth, PpmHeight, 0,  FRAMEBUFFER_TRANSFER_DMA);
-  FreeMem(PpmBuffer);
+
 
   writeln('this seems to work     ........ writeln   .. yipee ');
 
-  Tokenise('    hello world0.1');
+
+  GluteRepl();
 
    ThreadHalt(0);
 end.
