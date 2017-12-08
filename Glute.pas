@@ -2,13 +2,15 @@ unit glute;
 
 {$mode objfpc}{$H+}
 
+
 interface
 
 uses
 	fgl,
 	classes, {TStringStream }
- 	character; { IsWhiteSpace }
-	
+ 	character, { IsWhiteSpace }
+	sysutils
+	;
 
 type
 	TTokenType = (Eof, Unknown,  Identifier, Str);
@@ -123,12 +125,12 @@ begin
 end;
 
 procedure AddGluteProc(name:string; ptr:TGluteProc);
-var
-	idx:integer;
+{var
+	idx:integer;}
 begin
-	writeln('AddGluteProc:' + name);
-	idx := procMap.Add(name, ptr);
-	writeln(idx);
+	{writeln('AddGluteProc:' + name);}
+	procMap.Add(name, ptr);
+	{writeln(idx);}
 end;
 
 procedure say();
@@ -142,7 +144,7 @@ procedure GluteEval();
 	yytype:TTokenType;}
 var ptr: TGluteProc;
 idx: integer;
-found:boolean;
+{found:boolean;}
 begin
 
 	yylex(yytext);
@@ -171,28 +173,58 @@ procedure jesse();
 begin
 	writeln('Pinkman is not available right now');
 end;
+
 procedure yo();
 begin
 	writeln('Yo, yo, yo, 148-3369, representing the ABQ.');
 end;
 
+procedure xcept();
+begin
+	Raise exception.create('Xcept exception test');
+end;
+
+			
+procedure DumpExceptionCallStack(E: Exception);
+var
+	I: Integer;
+	Frames: PPointer;
+	Report: string;
+begin
+	Report := 'Program exception! ' + LineEnding +
+	'Stacktrace:' + LineEnding + LineEnding;
+	if E <> nil then begin
+		Report := Report + 'Exception class: ' + E.ClassName + LineEnding +
+		'Message: ' + E.Message + LineEnding;
+	end;
+	Report := Report + BackTraceStrFunc(ExceptAddr);
+	Frames := ExceptFrames;
+	for I := 0 to ExceptFrameCount - 1 do
+		Report := Report + LineEnding + BackTraceStrFunc(Frames[I]);
+	
+	{ShowMessage(Report);
+	Halt; // End of program execution
+	}
+
+	writeln(Report);
+end;
+
 procedure GluteRepl();
 var 
-{ptr: Pointer;}
 input:string;
-{procMap: TFuncMap;}
 begin
-	AddGluteProc('say', @say);
-	AddGluteProc('jesse', @jesse);
-	AddGluteProc('yo', @yo);
-
 
 	while true do begin
-		write(':');
-		readln(input);
-		if input = 'quit' then exit;
-		InitLexer(input);
-		GluteEval();
+		try
+		       	write(':');
+			readln(input);
+			if input = 'quit' then exit;
+			InitLexer(input);
+			GluteEval();
+		except
+		on E: Exception do
+			DumpExceptionCallStack(E);
+		end;
 	end;
 
 end;
@@ -201,6 +233,12 @@ end;
 initialization
 begin
 	procMap := TProcMap.Create;
+
+	AddGluteProc('say', @say);
+	AddGluteProc('jesse', @jesse);
+	AddGluteProc('xcept', @xcept);
+	AddGluteProc('yo', @yo);
+
 end;
 
 end.
