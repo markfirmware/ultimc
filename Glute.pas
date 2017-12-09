@@ -178,8 +178,10 @@ begin
 		ptr := procMap[yytext];
 		ptr();
 	end
-	else
-		writeln('Unrecognised token:' + yytext);
+	else begin
+                if length(yytext)>0 then
+                writeln('Unrecognised token:' + yytext);
+        end;
 
 end;
 
@@ -241,6 +243,7 @@ begin
 		try
 		       	write(':');
 			readln(input);
+                        writeln('');
 			if input = 'quit' then exit;
 			InitLexer(input);
 			GluteEval();
