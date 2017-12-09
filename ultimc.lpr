@@ -22,6 +22,7 @@ uses
   Framebuffer,
   GimpPpm,
   Glute, GimpPpmGlute, GpioGlute
+  , EdiGlute
   {, GPIO}
 ;
 

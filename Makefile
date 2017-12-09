@@ -16,5 +16,5 @@ GimpPpmTest : GimpPpm.pas GimpPpmTest.pas
 
 #GluteTest.o : GluteTest.pas
 
-GluteTest : Glute.pas GluteTest.pas
+GluteTest : Glute.pas  Edi.pas EdiGlute.pas GluteTest.pas
 	fpc $^

@@ -2,7 +2,9 @@ program glutetest;
 
 {$mode objfpc}{$H+}
 uses
-	Glute;
+	Glute
+	, EdiGlute
+	;
 
 
 
