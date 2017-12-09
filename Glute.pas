@@ -13,7 +13,7 @@ uses
 	;
 
 type
-	TTokenType = (Eof, Unknown,  Identifier, Str);
+	TTokenType = (Eof, Unknown,  Identifier, Str, UInt);
 
 	TGluteProc = procedure();
 
@@ -78,6 +78,16 @@ begin
 	{writeln('String:' + yytext);}
 end;
 
+procedure MakeUInt();
+begin
+	yytext := '';
+	yytype := UInt;
+	while isdigit(chr(cint)) and (cint <> -1) do begin
+		yytext := yytext + chr(cint);
+		cint := getchar();
+	end;
+end;
+
 procedure InitLexer(s:String);
 begin
 	tstr := TStringStream.Create(s);
@@ -108,6 +118,10 @@ begin
 	begin 
 		MakeQuotedString();
 	end
+	else if isdigit(chr(cint)) then
+	begin
+		MakeUInt();
+	end 
 	else
 	begin
 		{writeln('token skipping');}
@@ -167,6 +181,15 @@ begin
 	else
 		writeln('Unrecognised token:' + yytext);
 
+end;
+
+procedure add1();
+var res:Integer;
+begin
+	yylex(yytext);
+	{writeln(yytype = UInt);}
+	res := 1 + StrToInt(yytext);
+	writeln(res);
 end;
 
 procedure jesse();
@@ -234,6 +257,7 @@ initialization
 begin
 	procMap := TProcMap.Create;
 
+	AddGluteProc('add1', @add1);
 	AddGluteProc('say', @say);
 	AddGluteProc('jesse', @jesse);
 	AddGluteProc('xcept', @xcept);

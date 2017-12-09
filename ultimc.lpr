@@ -21,7 +21,8 @@ uses
   Console,
   Framebuffer,
   GimpPpm,
-  Glute, GimpPpmGlute
+  Glute, GimpPpmGlute, GpioGlute
+  {, GPIO}
 ;
 
 
