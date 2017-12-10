@@ -25,27 +25,30 @@ begin
      mode := StrToInt(yytext);
      f(pin, mode);
 end;
-procedure gfs();
+function gfs(vs:TVariantList):Variant;
+{$push}{$warn 5024 off}
 begin
      Args2(@SysGPIOFunctionSelect);
      {SysGPIOFunctionSelect(pin, mode);}
+     gfs := Null;
 end;
-procedure gos();
+{$pop}
+
+function gos(vs:TVariantList):Variant;
+{$push}{$warn 5024 off}
 begin
      Args2(@SysGPIOOutputSet);
+     gos := Null;
 end;
+{$pop}
 
-procedure gps();
-var pin, mode:LongWord;
+function gps(vs:TVariantList):Variant;
+{$push}{$warn 5024 off}
 begin
-     {yylex(yytext);
-     pin :=  StrToInt(yytext);
-     yylex(yytext);
-     mode := StrToInt(yytext);
-     SysGPIOPullSelect(pin, mode);
-     }
      Args2(@SysGPIOPullSelect);
+     gps := Null
 end;
+{$pop}
 
 initialization
 begin

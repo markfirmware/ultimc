@@ -8,16 +8,20 @@ interface
 uses
 	fgl,
 	classes, {TStringStream }
- 	character, { IsWhiteSpace }
-	sysutils
+ 	character { IsWhiteSpace }
+	, sysutils
+	, variants
 	;
 
 type
 	TTokenType = (Eof, Unknown,  Identifier, Str, UInt);
 
+        TVariantList  = specialize TFPGList<Variant>;
 	TGluteProc = procedure();
+        TGluteFunc = function(vs:TVariantList):variant;
 
-	TProcMap = specialize TFPGMap<string, TGluteProc>;
+	{TProcMap = specialize TFPGMap<string, TGluteProc>;}
+	TProcMap = specialize TFPGMap<string, TGluteFunc>;
 
 
 var
@@ -32,7 +36,7 @@ var
 procedure InitLexer(s:String);
 function yylex(var the_yytext:String):TTokenType;
 procedure GluteRepl();
-procedure AddGluteProc(name:string; ptr:TGluteProc);
+procedure AddGluteProc(name:string; ptr:TGluteFunc);
 
 
 implementation
@@ -138,7 +142,9 @@ begin
 
 end;
 
-procedure AddGluteProc(name:string; ptr:TGluteProc);
+
+
+procedure AddGluteProc(name:string; ptr:TGluteFunc);
 {var
 	idx:integer;}
 begin
@@ -153,46 +159,16 @@ begin
 	writeln(yytext);
 end;
 
-procedure GluteEval();
-{var
-	yytype:TTokenType;}
-var ptr: TGluteProc;
-idx: integer;
-{found:boolean;}
-begin
 
-	yylex(yytext);
-
-	idx := procMap.indexof(yytext);
-	if idx = -1 then begin
-		writeln('Unrecognised token:' + yytext);
-		exit;
-	end;
-
-	ptr := procMap.GetData(idx);
-
-	ptr();
-	exit;
-
-	if procMap.Find(yytext, idx) then begin
-		ptr := procMap[yytext];
-		ptr();
-	end
-	else begin
-                if length(yytext)>0 then
-                writeln('Unrecognised token:' + yytext);
-        end;
-
-end;
-
-procedure add1();
-var res:Integer;
+function add1(vs:TVariantList):Variant;
+{$push}{$warn 5024 off}
 begin
 	yylex(yytext);
 	{writeln(yytype = UInt);}
-	res := 1 + StrToInt(yytext);
-	writeln(res);
+	add1 := 1 + StrToInt(yytext);
+	{writeln(add1);}
 end;
+{$pop}
 
 procedure jesse();
 begin
@@ -234,6 +210,33 @@ begin
 	writeln(Report);
 end;
 
+procedure GluteEval();
+var ptr: TGluteFunc;
+idx: integer;
+res:Variant;
+vlist:TVariantList;
+begin
+
+        res := Null;
+
+
+	yylex(yytext);
+
+	idx := procMap.indexof(yytext);
+	if idx = -1 then begin
+		if length(yytext) > 0 then
+			writeln('Unrecognised token:' + yytext);
+		exit;
+	end;
+
+	ptr := procMap.GetData(idx);
+        vlist := TVariantList.Create();
+	res := ptr(vlist);
+        if res <> Null then
+        writeln(res);
+
+
+end;
 procedure GluteRepl();
 var 
 input:string;
@@ -261,10 +264,12 @@ begin
 	procMap := TProcMap.Create;
 
 	AddGluteProc('add1', @add1);
+        {
 	AddGluteProc('say', @say);
 	AddGluteProc('jesse', @jesse);
 	AddGluteProc('xcept', @xcept);
 	AddGluteProc('yo', @yo);
+        }
 
 end;
 

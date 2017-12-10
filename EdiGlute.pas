@@ -13,11 +13,14 @@ uses
 
 implementation
 
-procedure DoSayFile();
+function DoSayFile(vs:TVariantList):Variant;
+{$push}{$warn 5024 off}
 begin
+        DoSayFile := Null;
 	yylex(yytext);
 	sayfile(yytext);
 end;
+{$pop}
 
 initialization
 begin

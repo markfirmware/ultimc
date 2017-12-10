@@ -19,13 +19,16 @@ begin
   m_fb := fb;
 end;
 
-procedure display();
+function display(vs:TVariantList):variant;
+{$push}{$warn 5024 off}
 begin
   yylex(yytext);
   LoadPpm(yytext);
   FramebufferDevicePutRect(m_fb, 0, 0, PpmBuffer, PpmWidth, PpmHeight, 0,  FRAMEBUFFER_TRANSFER_DMA);
   FreeMem(PpmBuffer);
+  display := Null;
 end;
+{$pop}
 
 initialization
 begin
