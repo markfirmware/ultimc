@@ -6,7 +6,7 @@ unit parser;
 interface
 
 uses
-	fgl,
+	//fgl,
 	classes, {TStringStream }
  	character { IsWhiteSpace }
         //, contnrs
@@ -17,10 +17,18 @@ uses
 type
 	TTokenType = (Eof, Unknown,  Identifier, Str, UInt);
 
-        //TVariantList  = specialize TFPGList<Variant>;
-	TGluteProc = procedure();
+        TWordType = (atomic, compound);
+        TGluteProc = procedure();
+        //TWordPtr = ^TWord;
+        TWord = record
+          next:^TWord;
+          name:string;
+          case wtype:TWordType of
+               atomic: (ptr:procedure());
+               compound: (HeapIndex:Integer);
+        end;
 
-	TProcMap = specialize TFPGMap<string, TGluteProc>;
+	//TProcMap = specialize TFPGMap<string, TGluteProc>;
 
 
 var
@@ -28,9 +36,10 @@ var
 	tstr:TStringStream;
 	yytype:TTokenType;
 	yytext:string;
-	procMap:TProcMap;
+	//procMap:TProcMap;
         IntStack: array[1..200] of Integer;
         IntStackSize:Integer;
+        heap:^TWord;
 
 
 
@@ -48,8 +57,16 @@ implementation
 
 
 procedure AddGluteProc(name:string; ptr:TGluteProc);
+var
+        NewWord:^TWord;
 begin
-	procMap.Add(name, ptr);
+	//procMap.Add(name, ptr);
+
+        New(NewWord);
+        NewWord^.next := heap;
+        NewWord^.name := name;
+        NewWord^.ptr := ptr;
+        heap := NewWord;
 end;
 
 
@@ -131,9 +148,11 @@ end;
 
 procedure EvalWord(word: string);
 var
-idx:Integer;
+//idx:Integer;
 ptr: TGluteProc;
+hptr:^TWord;
 begin
+        {
         idx := procMap.indexof(word);
         if idx = -1 then begin
                 writeln('Unrecognised word:', word);
@@ -141,6 +160,17 @@ begin
         end;
 
         ptr := procMap.GetData(idx);
+        ptr();
+        }
+
+        // alternative method
+        hptr := heap;
+        while (hptr <> Nil ) and (hptr^.name <> word) do hptr := hptr^.next;
+        if hptr = Nil then begin
+                writeln('Unrecognised word:', word);
+                exit;
+        end;
+        ptr := hptr^.ptr;
         ptr();
 end;
 
@@ -206,9 +236,10 @@ end;
 
 initialization
 begin
-        procMap := TProcMap.Create;
+        //procMap := TProcMap.Create;
         IntStackSize := 0;
 
+        heap := Nil;
         AddGluteProc('.s',  @PrintStack);
         AddGluteProc('+',  @Plus);
 
