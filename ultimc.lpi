@@ -31,7 +31,7 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="ultimc.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -46,6 +46,10 @@
         <IsPartOfProject Value="True"/>
         <UnitName Value="GpioGlute"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="ForthIntel/parser.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -55,6 +59,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
+      <OtherUnitFiles Value="ForthIntel"/>
       <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <CodeGeneration>

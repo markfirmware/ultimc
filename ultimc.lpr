@@ -20,9 +20,12 @@ uses
   Ultibo,
   Console,
   Framebuffer,
-  GimpPpm,
-  Glute, GimpPpmGlute, GpioGlute
-  , EdiGlute
+  GimpPpm
+  , Parser
+  //, Glute
+  //, GimpPpmGlute
+  //, GpioGlute
+  //, EdiGlute}
   {, GPIO}
 ;
 
@@ -43,7 +46,7 @@ begin
   Sleep(100);
   FrameBufferDeviceSetDefault(Fb);
   FrameBufferDeviceGetProperties(Fb,@FrameBufferProperties);
-  SetGimpPpmGluteFb(Fb);
+  //SetGimpPpmGluteFb(Fb);
 
   FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
