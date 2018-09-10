@@ -9,7 +9,7 @@ uses
 	fgl,
 	classes, {TStringStream }
  	character { IsWhiteSpace }
-        , contnrs
+        //, contnrs
 	, sysutils
 	, variants
 	;
@@ -176,6 +176,32 @@ begin
 end;
 {$pop}
 
+function Pop(): Integer;
+begin
+        Pop := 0;
+        if(IntStackSize<1) then
+        begin
+                writeln('Stack underflow');
+                exit;
+        end;
+
+        Pop := IntStack[IntStackSize];
+        IntStackSize := IntStackSize - 1;
+
+
+end;
+
+procedure Push(val:integer);
+begin
+        IntStackSize := IntStackSize +1;
+        IntStack[IntStackSize] := val;
+end;
+
+procedure Plus();
+begin
+        Push(Pop() + Pop());
+end;
+
 procedure PrintStack();
 var
         i:Integer;
@@ -326,6 +352,7 @@ begin
 
 	{AddGluteProc('add1', @add1);}
         AddGluteProc('.s',  @PrintStack);
+        AddGluteProc('+',  @Plus);
               {
 	AddGluteProc('say', @say);
 	AddGluteProc('jesse', @jesse);
