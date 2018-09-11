@@ -21,7 +21,7 @@ type
         TGluteProc = procedure();
         //TWordPtr = ^TWord;
         TWord = record
-          next:^TWord;
+          link:^TWord;
           name:string;
           case wtype:TWordType of
                atomic: (ptr:procedure());
@@ -39,14 +39,14 @@ var
 	//procMap:TProcMap;
         IntStack: array[1..200] of Integer;
         IntStackSize:Integer;
-        heap:^TWord;
+        dict:^TWord;
 
 
 
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
 procedure GluteRepl();
-procedure AddGluteProc(name:string; ptr:TGluteProc);
+procedure AddAtomic(name:string; ptr:TGluteProc);
 
 
 implementation
@@ -56,17 +56,17 @@ implementation
 
 
 
-procedure AddGluteProc(name:string; ptr:TGluteProc);
+procedure AddAtomic(name:string; ptr:TGluteProc);
 var
         NewWord:^TWord;
 begin
 	//procMap.Add(name, ptr);
 
         New(NewWord);
-        NewWord^.next := heap;
+        NewWord^.link := dict;
         NewWord^.name := name;
         NewWord^.ptr := ptr;
-        heap := NewWord;
+        dict := NewWord;
 end;
 
 
@@ -113,6 +113,10 @@ begin
         writeln('');
 end;
 
+procedure Dot();
+begin
+        write(Pop(), ' ');
+end;
 
 procedure xcept();
 begin
@@ -164,8 +168,8 @@ begin
         }
 
         // alternative method
-        hptr := heap;
-        while (hptr <> Nil ) and (hptr^.name <> word) do hptr := hptr^.next;
+        hptr := dict;
+        while (hptr <> Nil ) and (hptr^.name <> word) do hptr := hptr^.link;
         if hptr = Nil then begin
                 writeln('Unrecognised word:', word);
                 exit;
@@ -239,9 +243,10 @@ begin
         //procMap := TProcMap.Create;
         IntStackSize := 0;
 
-        heap := Nil;
-        AddGluteProc('.s',  @PrintStack);
-        AddGluteProc('+',  @Plus);
+        dict := Nil;
+        AddAtomic('.s',  @PrintStack);
+        AddAtomic('+',  @Plus);
+        AddAtomic('.', @Dot);
 
 
 end;
