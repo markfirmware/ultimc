@@ -14,6 +14,8 @@ uses
 	, variants
 	;
 
+const MAX_HEAP = 10000;
+
 type
 	TTokenType = (Eof, Unknown,  Identifier, Str, UInt);
 
@@ -27,12 +29,14 @@ type
                atomic: (ptr:procedure());
                compound: (HeapIndex:Integer);
         end;
+        TCell = Integer;
+
 
 	//TProcMap = specialize TFPGMap<string, TGluteProc>;
 
 
 var
-	cint:integer;
+	//cint:integer;
 	tstr:TStringStream;
 	yytype:TTokenType;
 	yytext:string;
@@ -40,6 +44,7 @@ var
         IntStack: array[1..200] of Integer;
         IntStackSize:Integer;
         dict:^TWord;
+        heap: array[1..MAX_HEAP] of TCell;
 
 
 
