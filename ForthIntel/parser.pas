@@ -138,6 +138,11 @@ begin
 
 end;
 
+procedure Push(val:integer);
+begin
+        IntStackSize := IntStackSize +1;
+        IntStack[IntStackSize] := val;
+end;
 procedure EvalInteger(val:Integer);
 var
         //bytes: array[0..3] of byte;
@@ -147,50 +152,8 @@ begin
         Push(val);
 end;
 
-function Pop(): Integer;
-begin
-        Pop := 0;
-        if(IntStackSize<1) then
-        begin
-                writeln('Stack underflow');
-                exit;
-        end;
-
-        Pop := IntStack[IntStackSize];
-        IntStackSize := IntStackSize - 1;
 
 
-end;
-
-procedure Push(val:integer);
-begin
-        IntStackSize := IntStackSize +1;
-        IntStack[IntStackSize] := val;
-end;
-
-procedure Plus();
-begin
-        Push(Pop() + Pop());
-end;
-
-
-
-procedure Dot();
-begin
-        write(Pop(), ' ');
-end;
-
-procedure Dup();
-var i:Integer;
-begin
-        i := Pop();
-        Push(i);
-        Push(i);
-end;
-procedure xcept();
-begin
-	Raise exception.create('Xcept exception test');
-end;
 
 procedure P_word();
 begin
@@ -376,62 +339,12 @@ begin
      yytype := yylex();
      EvalToken(yytype);
 end;
-procedure words();
-var d:Integer;
-begin
-     d := latest;
-     {*
-     while (d <> 0) do
-     begin
-             write(d^.name, ' ');
-             d := d^.link;
-     end;
-     *}
-     writeln();
-end;
-
-procedure Dump();
-{
-var
-        i:Integer;
-        w, d:TWordPtr;
-        codeptr:TGluteProc;
-        }
-begin
-     {*
-     writeln('Heap:');
-     for i:= 1 to heaptop-1 do
-     begin
-             write('Heap:', i, ' ');
-             w := heap[i];
-
-             // reverse lookup the codeptr
-             codeptr := w^.codeptr;
-             d := dict;
-             while d^.codeptr <> codeptr do d := d^.link;
-             writeln(w^.name, ' ', d^.name);
-     end;
-     writeln('dataspace:');
-     for i := 1 to dptr-1 do
-     begin
-             writeln(i, '   ' , dataspace[i]);
-     end;
-     words();
-     *}
-end;
-
-procedure info();
-begin
-     writeln('Sizeof:Integer: ', sizeof(Integer));
-     writeln('Sizeof:Int64:   ', sizeof(Int64));
-     writeln('Sizeof:Pointer: ', sizeof(Pointer));
-end;
 
 procedure GluteRepl();
 //var yytype:TTokenType;
 //input:string;
 begin
-     info();
+     //info();
      while true do begin
              try
                         write(':');
@@ -464,15 +377,10 @@ begin
 
         // prefix normal words with 0, immediate words with 1
 
-        AddAtomic(0, '+',  @Plus);
-        AddAtomic(0, '.', @Dot);
-        AddAtomic(0, 'DUP', @Dup);
         AddAtomic(0, 'BRANCH', @Branch);
         AddAtomic(0, '?BRANCH', @qBranch);
-        //AddAtomic('dump', @Dump);
         AddAtomic(0, ':', @Colon);
         AddAtomic(1, ';', @Semicolon);
-        AddAtomic(0, 'WORDS', @Words);
         AddAtomic(0, 'CREATE', @P_create);
         //lookup('create');
 end;
