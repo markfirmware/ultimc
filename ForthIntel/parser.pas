@@ -78,7 +78,7 @@ function DictName(ptr:Integer):string;
 var i:Integer;
 begin
         DictName := '';
-        for i:= 1 to heap[ptr+4] do DictName += char(heap[ptr+4+i]);
+        for i:= 1 to heap[ptr+5] do DictName += char(heap[ptr+5+i]);
 end;
 function GetHeap32(pos:Integer):Integer;
 begin
@@ -99,6 +99,12 @@ begin
 
 end;
 
+procedure HeapByte(b:byte);
+begin
+        heap[hptr] := b;
+        inc(hptr);
+end;
+
 procedure Heap32(val:Integer);
 begin
         Move(val, heap[hptr], 4);
@@ -109,6 +115,7 @@ begin
         Move(ptr, heap[hptr], sizeof(Pointer));
         inc(hptr, sizeof(Pointer));
 end;
+
 function GetHeapPointer(pos:Integer) : Pointer;
 begin
         Move(heap[pos], GetHeapPointer, sizeof(Pointer));
@@ -116,8 +123,8 @@ end;
 function WordCodeptr(d:Integer):Pointer;
 var offset:Integer;NameLength:byte;
 begin
-        NameLength := heap[d+4] mod 128; // take modulo to remove immediate flags
-        offset := d  + 4 + NameLength + 1;
+        NameLength := heap[d+5];
+        offset := d  + 4 + 1 + NameLength + 1;
         //writeln('WordCodeptr:offset:', offset);
         WordCodeptr := GetHeapPointer(offset);
         //writeln('WordCodeptr:',  Int64(WordCodeptr));
@@ -130,7 +137,8 @@ var
 begin
         tmp := hptr; // this will become the new top of the dictionary
         Heap32(latest);  // link
-        heap[hptr] := (immediate shl 7) + length(name); inc(hptr); // name length
+        HeapByte(immediate); // flags, of which immediate is one
+        heap[hptr] := length(name); inc(hptr); // name length
 
         // write out the name
         for i := 1 to length(name) do
