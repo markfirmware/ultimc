@@ -48,11 +48,9 @@ var
 	//procMap:TProcMap;
         IntStack: array[1..200] of Integer;
         IntStackSize:Integer;
-        dict:Integer;
-        dataspace: array [1..30000] of byte; // data used by the dictionary
-        dptr:Integer; // pointer the dataspace
-        worddptr:Integer; // pointer to the dataspace for the current word
-        //heap: array[1..MAX_HEAP] of ^TWord;
+
+        // dictionary items
+        latest:Integer; // the latest word being defined
 
         hptr:Integer; // pointer into the heap
         //heaptop:Integer;
@@ -65,7 +63,7 @@ var
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
 procedure GluteRepl();
-procedure AddAtomic(name:string; ptr:Pointer);
+procedure AddAtomic(immediate:byte;name:string; ptr:Pointer);
 procedure Push(val:integer);
 function yylex() : TTokenType;
 procedure yyparse();
@@ -87,16 +85,17 @@ begin
         Move(heap[pos], GetHeap32, 4);
 end;
 
-function lookup(name:string): Integer;
+function P_find(name:string): Integer;
 begin
-        lookup := dict;
-        while lookup <> 0 do
+        name := UpperCase(name);
+        P_find := latest;
+        while P_find <> 0 do
         begin
-                if DictName(lookup) = name then exit;
-                lookup := GetHeap32(lookup);
+                if DictName(P_find) = name then exit;
+                P_find := GetHeap32(P_find);
         end;
 
-        writeln('lookup failed for word:',name);
+        writeln('FIND failed for word:',name);
 
 end;
 
@@ -115,22 +114,23 @@ begin
         Move(heap[pos], GetHeapPointer, sizeof(Pointer));
 end;
 function WordCodeptr(d:Integer):Pointer;
-var offset:Integer;
+var offset:Integer;NameLength:byte;
 begin
-        offset := d  + 4 + heap[d+4] + 1;
-        writeln('WordCodeptr:offset:', offset);
+        NameLength := heap[d+4] mod 128; // take modulo to remove immediate flags
+        offset := d  + 4 + NameLength + 1;
+        //writeln('WordCodeptr:offset:', offset);
         WordCodeptr := GetHeapPointer(offset);
-        writeln('WordCodeptr:',  Int64(WordCodeptr));
+        //writeln('WordCodeptr:',  Int64(WordCodeptr));
 
 end;
 
-procedure AddAtomic(name:string; ptr:Pointer);
+procedure AddAtomic(immediate:byte; name:string; ptr:Pointer);
 var
         tmp, i:Integer;
 begin
         tmp := hptr; // this will become the new top of the dictionary
-        Heap32(dict);  // link
-        heap[hptr] := length(name); inc(hptr); // name length
+        Heap32(latest);  // link
+        heap[hptr] := (immediate shl 7) + length(name); inc(hptr); // name length
 
         // write out the name
         for i := 1 to length(name) do
@@ -140,24 +140,8 @@ begin
         end;
 
         HeapPointer(ptr); // codeptr
-        dict := tmp;
+        latest := tmp;
 
-end;
-
-procedure PushInteger();
-var
-        bytes: array[0..3] of byte;
-        val, i:Integer;
-begin
-        for i:= 0 to 3 do bytes[i] := dataspace[worddptr + i];
-        val := 0; // supress compilation warning
-        Move(bytes, val, 4);
-end;
-
-procedure PushDataByte(b:byte);
-begin
-        dataspace[dptr] := b;
-        dptr := dptr + 1;
 end;
 
 procedure EvalInteger(val:Integer);
@@ -165,13 +149,7 @@ var
         bytes: array[0..3] of byte;
         i: Integer;
 begin
-        writeln('EvalInteger called:', val);
-        {*
-        AddDictEntry('', @PushInteger);
-        bytes[0] := 0; // suppress warning about not being initialised
-        Move(val, bytes, 4);
-        for i := 0 to 3 do  PushDataByte(bytes[i]);
-        *}
+        //writeln('EvalInteger called:', val);
         Push(val);
 end;
 
@@ -205,7 +183,7 @@ procedure PrintStack();
 var
         i:Integer;
 begin
-        writeln('PrintStack called');
+        //writeln('PrintStack called');
         for i := 1 to IntStackSize do
                 write(IntStack[i], ' ');
 end;
@@ -239,12 +217,15 @@ begin
      yyparse();
 end;
 
-procedure Create();
+
+procedure P_word();
 begin
-     CreateWith(@Noop);
-        //yylex();
-        //AddDictEntry(yytext, @Noop);
-        //yyparse();
+     yylex();
+end;
+
+procedure P_create();
+begin
+     P_word(); // read the name of the function being defined
 end;
 
 procedure DoCol();
@@ -252,13 +233,11 @@ begin
      writeln('DoCol TODO');
 end;
 
+
 procedure Colon();
 begin
-        state := compiling;
-        CreateWith(@DoCol);
-     //writeln('Colon TODO');
-
-
+     P_create(); // construct the dictionary entry header
+     state := compiling;
 end;
 
 procedure SemiColon();
@@ -355,55 +334,52 @@ begin
         if IsInt() then
         begin
                 yylex := Int;
-                writeln('yylex:int:', yylval_i);
+                //writeln('yylex:int:', yylval_i);
         end
         else
         begin
                 yylex := Word;
                 yylval_text := yytext;
-                writeln('yylex:word:', yylval_text);
+                //writeln('yylex:word:', yylval_text);
 
         end;
 end;
 
 
-{*
-procedure CallCodePtr(fn:TGluteProc);
-begin
-        fn();
-end;
-
-*}
-
 procedure EvalWord(name:string);
 var wptr:Integer; ptr:Pointer; ptr1:TGluteProc;
 begin
-        wptr := lookup(name);
+        wptr := P_find(name);
         if wptr = 0 then
         begin
                 writeln('Word unfound:', name);
                 exit;
         end;
 
-        writeln('word found');
+        //writeln('word found');
         ptr := WordCodeptr(wptr);
-        writeln('word found:', Integer(ptr));
-        //CallCodePtr(ptr);
-        ptr1 := TGluteProc(ptr);
-        ptr1();
+        //writeln('word found:', Integer(ptr));
+        if state = compiling then
+        begin
+                HeapPointer(ptr);
+        end
+        else
+        begin
+             ptr1 := TGluteProc(ptr);
+             ptr1();
+        end;
 end;
 
 procedure EvalToken(yytype:TTokenType);
 //var ptr:TGluteProc;
 begin
-     writeln('EvalToken called:', yytext);
-        case yytype of
+     //writeln('EvalToken called:', yytext);
+     case yytype of
         Int: EvalInteger(yylval_i);
         Word: EvalWord(yylval_text);
         Eof: writeln('EvalToken:Eof');
         else writeln('EvalToken:unknown');
-        end;
-
+     end;
 end;
 procedure yyparse();
 var yystype:TTokenType;
@@ -429,7 +405,7 @@ end;
 procedure words();
 var d:Integer;
 begin
-     d := dict;
+     d := latest;
      {*
      while (d <> 0) do
      begin
@@ -501,28 +477,29 @@ initialization
 begin
         //procMap := TProcMap.Create;
         IntStackSize := 0;
-        dict := 0;
+        latest := 0;
         ip := 1;
         tib := '';
         yytext := '';
         yypos := 1;
-        dptr := 1;
+        //dptr := 1;
         //heaptop := 1;
         hptr := 1;
         state := interpreting;
         //heap1 := malloc(10000);
 
-        AddAtomic('.s',  @PrintStack);
-        AddAtomic('+',  @Plus);
-        AddAtomic('.', @Dot);
-        AddAtomic('dup', @Dup);
-        AddAtomic('branch', @Branch);
-        AddAtomic('branch?', @qBranch);
-        AddAtomic('dump', @Dump);
-        AddAtomic(':', @Colon);
-        AddAtomic(';', @Semicolon);
-        AddAtomic('words', @Words);
-        AddAtomic('create', @Create);
+        // prefix normal words with 0, immediate words with 1
+        AddAtomic(0, '.S',  @PrintStack);
+        AddAtomic(0, '+',  @Plus);
+        AddAtomic(0, '.', @Dot);
+        AddAtomic(0, 'DUP', @Dup);
+        AddAtomic(0, 'BRANCH', @Branch);
+        AddAtomic(0, '?BRANCH', @qBranch);
+        //AddAtomic('dump', @Dump);
+        AddAtomic(0, ':', @Colon);
+        AddAtomic(1, ';', @Semicolon);
+        AddAtomic(0, 'WORDS', @Words);
+        AddAtomic(0, 'CREATE', @P_create);
         writeln('Init:@PrintStack:',  Int64(@PrintStack));
         //lookup('create');
 end;
