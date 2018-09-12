@@ -19,24 +19,13 @@ const MAX_HEAP = 10000;
 type
 
         TWordType = (atomic, colonic, integral);
-        TGluteProc = procedure();
-        //TWordPtr = ^TWord;
-        TWord = record
-          name:string;
-          link:Integer; // link to the previous word in the dictionary
-          codeptr:procedure();
-          dptr:Integer;  // dataspace
-        end;
-        TWordPtr = ^TWord;
+        TProc = procedure();
 
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
 
 var
-	//cint:integer;
-	//tstr:TStringStream;
-	//yytype:TTokenType;
 
         state:TState;
         tib:string; // terminal input buffer
@@ -45,7 +34,6 @@ var
         yylval_text:string;
 
 	yytext:string;
-	//procMap:TProcMap;
         IntStack: array[1..200] of Integer;
         IntStackSize:Integer;
 
@@ -53,10 +41,8 @@ var
         latest:Integer; // the latest word being defined
 
         hptr:Integer; // pointer into the heap
-        //heaptop:Integer;
-        ip:Integer; // instruction pointer to the heap
+        //ip:Integer; // instruction pointer to the heap
         heap:array[1..10000] of byte;
-        //heap1:Pointer;
 
 
 
@@ -218,7 +204,7 @@ begin
         // don't do anything
 end;
 
-procedure CreateWith(proc:TGluteProc);
+procedure CreateWith(proc:TProc);
 begin
      yylex();
      //AddDictEntry(yytext, proc);
@@ -355,7 +341,7 @@ end;
 
 
 procedure EvalWord(name:string);
-var wptr:Integer; ptr:Pointer; ptr1:TGluteProc;
+var wptr:Integer; ptr:Pointer; ptr1:TProc;
 begin
         wptr := P_find(name);
         if wptr = 0 then
@@ -373,7 +359,7 @@ begin
         end
         else
         begin
-             ptr1 := TGluteProc(ptr);
+             ptr1 := TProc(ptr);
              ptr1();
         end;
 end;
@@ -486,7 +472,7 @@ begin
         //procMap := TProcMap.Create;
         IntStackSize := 0;
         latest := 0;
-        ip := 1;
+        //ip := 1;
         tib := '';
         yytext := '';
         yypos := 1;
