@@ -22,6 +22,7 @@ uses
   Framebuffer,
   GimpPpm
   , Parser
+  , secondary
   //, Glute
   //, GimpPpmGlute
   //, GpioGlute

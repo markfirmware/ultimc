@@ -69,16 +69,9 @@ begin
 end;
 
 procedure words();
-var d:Integer;
+//var d:Integer;
 begin
-     d := latest;
-     {*
-     while (d <> 0) do
-     begin
-             write(d^.name, ' ');
-             d := d^.link;
-     end;
-     *}
+     //d := latest;
      writeln();
 end;
 
