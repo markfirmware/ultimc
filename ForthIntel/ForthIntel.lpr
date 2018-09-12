@@ -1,6 +1,6 @@
 program ForthIntel;
 
-uses parser;
+uses parser, secondary;
 
 
 begin

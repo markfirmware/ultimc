@@ -140,7 +140,7 @@ end;
 
 procedure EvalInteger(val:Integer);
 var
-        bytes: array[0..3] of byte;
+        //bytes: array[0..3] of byte;
         i: Integer;
 begin
         //writeln('EvalInteger called:', val);
@@ -173,14 +173,7 @@ begin
         Push(Pop() + Pop());
 end;
 
-procedure PrintStack();
-var
-        i:Integer;
-begin
-        //writeln('PrintStack called');
-        for i := 1 to IntStackSize do
-                write(IntStack[i], ' ');
-end;
+
 
 procedure Dot();
 begin
@@ -198,19 +191,6 @@ procedure xcept();
 begin
 	Raise exception.create('Xcept exception test');
 end;
-
-procedure Noop;
-begin
-        // don't do anything
-end;
-
-procedure CreateWith(proc:TProc);
-begin
-     yylex();
-     //AddDictEntry(yytext, proc);
-     yyparse();
-end;
-
 
 procedure P_word();
 begin
@@ -483,7 +463,7 @@ begin
         //heap1 := malloc(10000);
 
         // prefix normal words with 0, immediate words with 1
-        AddAtomic(0, '.S',  @PrintStack);
+
         AddAtomic(0, '+',  @Plus);
         AddAtomic(0, '.', @Dot);
         AddAtomic(0, 'DUP', @Dup);
@@ -494,7 +474,6 @@ begin
         AddAtomic(1, ';', @Semicolon);
         AddAtomic(0, 'WORDS', @Words);
         AddAtomic(0, 'CREATE', @P_create);
-        writeln('Init:@PrintStack:',  Int64(@PrintStack));
         //lookup('create');
 end;
 
