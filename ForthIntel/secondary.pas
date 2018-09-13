@@ -84,29 +84,28 @@ var h:THeaderPtr;
 begin
      P_word();
      h := P_find(yytext);
-     if h = Nil then
-     begin
-             writeln(Uppercase(yytext), ' undefined');
-             exit;
-     end;
-
      Push(Int64(h));
-//     Push(TCell(Pointer(h)));
-     //Push(Int64(h^.codeptr));
-     {*
-     if iloc <> 0 then
-     begin
-             loc := iloc;
-             loc1 := WordCodeptr(loc);
-             Push(loc1);
-     end;
-     *}
+
 end;
 procedure P_execute();
 var ptr:THeaderPtr;
 begin
      ptr := THeaderPtr(Pop());
-     ExecPointer(ptr);
+     ExecHeader(ptr);
+end;
+
+procedure P_see();
+var h:THeaderPtr;
+begin
+     P_word();
+     h := P_find(yytext);
+
+     if(h^.codeptr <> @Docol) then
+     begin
+             writeln(Uppercase(yytext), ' is primitive');
+             exit;
+     end;
+     writeln('seeing ', h^.name^);
 end;
 
 initialization
@@ -119,10 +118,11 @@ begin
           AddPrim(0, 'WORDS', @P_words);
           AddPrim(0, '''', @P_tick);
           AddPrim(0, 'EXECUTE', @P_execute);
+          AddPrim(0, 'SEE', @P_see);
 
-          writeln('Init:@PrintStack:',  Int64(@P_printstack));
-          P_words();
-          P_find('CREATE');
+          //writeln('Init:@PrintStack:',  Int64(@P_printstack));
+          //P_words();
+          //P_find('CREATE');
 
 end;
 end.

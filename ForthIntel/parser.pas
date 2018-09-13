@@ -70,9 +70,10 @@ procedure yyparse();
 procedure P_word();
 function P_find(name:string): THeaderPtr;
 function WordCodeptr(d:Integer):Tcell;
-procedure ExecPointer(ptr:THeaderPtr);
+procedure ExecHeader(ptr:THeaderPtr);
 function DictName(ptr:Integer):string;
 function GetHeap32(pos:Integer):Integer;
+procedure DoCol();
 
 implementation
 
@@ -99,6 +100,7 @@ begin
      P_find := latest;
      name := UpperCase(name);
      while (P_find <> Nil) and (P_find^.name^ <> name) do P_find := P_find^.link;
+     if(P_find = Nil) then Raise exception.create(name + ' unfound');
 end;
 
 procedure HeapifyHeader(hdr:THeader);
@@ -210,7 +212,7 @@ begin
    while iptr <> TCell(@P_exit) do
    begin
            writeln('DoCol doing', iptr);
-           ExecPointer(Pointer(iptr));
+           ExecHeader(Pointer(iptr));
            inc(iptr, sizeof(TCell));
    end;
 
@@ -339,7 +341,7 @@ begin
         end;
 end;
 
-procedure ExecPointer(ptr:THeaderPtr);
+procedure ExecHeader(ptr:THeaderPtr);
 var ptr1:TProc;
 begin
         ptr1 := TProc(ptr^.codeptr);
@@ -364,15 +366,15 @@ begin
                 exit;
         end;
 
-        ptr := Pointer(WordCodeptr(header));
+        //ptr := Pointer(WordCodeptr(header));
         if (state = compiling) and mediate(h) then
         begin
                 writeln('Compiling ', name);
-                HeapPointer(ptr);
+                HeapPointer(h);
         end
         else
         begin
-                ExecPointer(h);
+                ExecHeader(h);
         end;
 end;
 
