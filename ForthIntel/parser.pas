@@ -182,6 +182,7 @@ end;
 procedure Colon();
 begin
      P_create(); // construct the dictionary entry header
+     HeapPointer(@Docol);
      state := compiling;
 end;
 
@@ -298,6 +299,13 @@ begin
         ptr1();
 end;
 
+function mediate(wptr:Integer):boolean; // opposite of immediate
+var flags:byte;
+begin
+        flags := heap[wptr+4];
+        mediate := ((flags and 1) = 0);
+end;
+
 procedure EvalWord(name:string);
 var wptr:Integer; ptr:Pointer;
 begin
@@ -311,8 +319,9 @@ begin
         //writeln('word found');
         ptr := Pointer(WordCodeptr(wptr));
         //writeln('word found:', Integer(ptr));
-        if state = compiling then
+        if (state = compiling) and mediate(wptr) then
         begin
+                writeln('Compiling ', name);
                 HeapPointer(ptr);
         end
         else
