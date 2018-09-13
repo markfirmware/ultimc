@@ -21,6 +21,7 @@ type
         TWordType = (atomic, colonic, integral);
         TProc = procedure();
 
+        TCell = Int64;
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
@@ -30,11 +31,11 @@ var
         state:TState;
         tib:string; // terminal input buffer
         yypos:Integer; // a position within tib
-        yylval_i:Integer;
+        yylval_i:TCell;
         yylval_text:string;
 
 	yytext:string;
-        IntStack: array[1..200] of Integer;
+        IntStack: array[1..200] of TCell;
         IntStackSize:Integer;
 
         // dictionary items
@@ -50,9 +51,13 @@ var
 //function yylex(var the_yytext:String):TTokenType;
 procedure GluteRepl();
 procedure AddAtomic(immediate:byte;name:string; ptr:Pointer);
-procedure Push(val:integer);
+procedure Push(val:TCell);
 function yylex() : TTokenType;
 procedure yyparse();
+procedure P_word();
+function P_find(name:string): Integer;
+function WordCodeptr(d:Integer):Tcell;
+procedure ExecPointer(ptr:Pointer);
 
 implementation
 
@@ -106,17 +111,17 @@ function GetHeapPointer(pos:Integer) : Pointer;
 begin
         Move(heap[pos], GetHeapPointer, sizeof(Pointer));
 end;
-function WordCodeptr(d:Integer):Pointer;
+function WordCodeptr(d:Integer):TCell;
 var offset:Integer;NameLength:byte;
 begin
         NameLength := heap[d+5];
         offset := d  + 4 + 1 + NameLength + 1;
         //writeln('WordCodeptr:offset:', offset);
-        WordCodeptr := GetHeapPointer(offset);
+        WordCodeptr := TCell(GetHeapPointer(offset));
         //writeln('WordCodeptr:',  Int64(WordCodeptr));
 
 end;
-procedure WriteHeader(immediate:byte; name:string);
+procedure CreateHeader(immediate:byte; name:string);
 var tmp, i:Integer;
 begin
    tmp := hptr; // this will become the new top of the dictionary
@@ -136,16 +141,16 @@ end;
 procedure AddAtomic(immediate:byte; name:string; ptr:Pointer);
 //var        tmp, i:Integer;
 begin
-     WriteHeader(immediate, name);
+     CreateHeader(immediate, name);
      HeapPointer(ptr); // codeptr
 end;
 
-procedure Push(val:integer);
+procedure Push(val:TCell);
 begin
      IntStackSize := IntStackSize +1;
      IntStack[IntStackSize] := val;
 end;
-procedure EvalInteger(val:Integer);
+procedure EvalInteger(val:TCell);
 //var        i: Integer;
 begin
         //writeln('EvalInteger called:', val);
@@ -163,7 +168,8 @@ end;
 procedure P_create();
 begin
      P_word(); // read the name of the word being defined
-     WriteHeader(0, yytext);
+     writeln(' word being created is:', yytext);
+     CreateHeader(0, yytext); // it assumes its not immediate
 end;
 
 procedure DoCol();
@@ -212,7 +218,7 @@ end;
 function IsInt() :Boolean;
 var pos, sgn, len, i:Integer;
 begin
-        yylval_i := 0;
+        yylval_i := TCell(0);
         IsInt := true;
         pos := 1;
         sgn := 1;
@@ -234,7 +240,8 @@ begin
                 begin
                         if isdigit(yytext[i]) then
                         begin
-                                yylval_i := 10 * yylval_i + (ord(yytext[i]) - ord('0'));
+                                yylval_i := 10 * yylval_i;
+                                yylval_i += (ord(yytext[i]) - ord('0'));
                         end
                         else
                         begin
@@ -283,6 +290,12 @@ begin
         end;
 end;
 
+procedure ExecPointer(ptr:Pointer);
+var ptr1:TProc;
+begin
+        ptr1 := TProc(ptr);
+        ptr1();
+end;
 
 procedure EvalWord(name:string);
 var wptr:Integer; ptr:Pointer; ptr1:TProc;
@@ -295,7 +308,7 @@ begin
         end;
 
         //writeln('word found');
-        ptr := WordCodeptr(wptr);
+        ptr := Pointer(WordCodeptr(wptr));
         //writeln('word found:', Integer(ptr));
         if state = compiling then
         begin
@@ -303,8 +316,7 @@ begin
         end
         else
         begin
-             ptr1 := TProc(ptr);
-             ptr1();
+                ExecPointer(ptr);
         end;
 end;
 

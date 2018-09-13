@@ -75,6 +75,24 @@ begin
      writeln();
 end;
 
+procedure P_tick();
+var loc, loc1: TCell; iloc:Integer;
+begin
+     P_word();
+     iloc := P_find(yytext);
+     if iloc <> 0 then
+     begin
+             loc := iloc;
+             loc1 := WordCodeptr(loc);
+             Push(loc1);
+     end;
+end;
+procedure P_execute();
+var ptr:TCell;
+begin
+     ptr := Pop();
+     ExecPointer(Pointer(ptr));
+end;
 
 initialization
 begin
@@ -84,6 +102,8 @@ begin
           AddAtomic(0, '.S',  @P_printstack);
           AddAtomic(0, 'INFO',  @P_info);
           AddAtomic(0, 'WORDS', @Words);
+          AddAtomic(0, '''', @P_tick);
+          AddAtomic(0, 'EXECUTE', @P_execute);
 
           writeln('Init:@PrintStack:',  Int64(@P_printstack));
 
