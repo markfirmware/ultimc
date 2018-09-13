@@ -26,6 +26,14 @@ type
 
         TState = (compiling, interpreting);
 
+        THeaderPtr = ^THeader;
+        THeader = record // a header for a word
+          link:THeaderPtr;
+          flags:byte;
+          name:PString;
+          codeptr:TProc;
+        end; // data will extend beyond this
+
 var
 
         state:TState;
@@ -39,29 +47,37 @@ var
         IntStackSize:Integer;
 
         // dictionary items
-        latest:Integer; // the latest word being defined
+        latest:THeaderPtr; // the latest word being defined
 
         hptr:Integer; // pointer into the heap
         //ip:Integer; // instruction pointer to the heap
         heap:array[1..10000] of byte;
+        wptr:Integer; // some kind of word pointer
+        iptr:Integer; // some kind of instruction pointer
+
+        rstack:array[1..200] of TCell; // return stack
+        rsp:Integer; // return stack pointer
 
 
 
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
 procedure GluteRepl();
-procedure AddAtomic(immediate:byte;name:string; ptr:Pointer);
+procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
 function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
-function P_find(name:string): Integer;
+function P_find(name:string): THeaderPtr;
 function WordCodeptr(d:Integer):Tcell;
-procedure ExecPointer(ptr:Pointer);
+procedure ExecPointer(ptr:THeaderPtr);
+function DictName(ptr:Integer):string;
+function GetHeap32(pos:Integer):Integer;
 
 implementation
 
 //const SingleQuote:integer = $27;
+
 
 
 
@@ -76,18 +92,19 @@ begin
         Move(heap[pos], GetHeap32, 4);
 end;
 
-function P_find(name:string): Integer;
+function P_find(name:string): THeaderPtr;
+var d:THeaderPtr; hdr:THeader;s:PString;
 begin
-        name := UpperCase(name);
-        P_find := latest;
-        while P_find <> 0 do
-        begin
-                if DictName(P_find) = name then exit;
-                P_find := GetHeap32(P_find);
-        end;
+     //d := latest;
+     P_find := latest;
+     name := UpperCase(name);
+     while (P_find <> Nil) and (P_find^.name^ <> name) do P_find := P_find^.link;
+end;
 
-        writeln('FIND failed for word:',name);
-
+procedure HeapifyHeader(hdr:THeader);
+begin
+        Move(hdr, heap[hptr], sizeof(THeader));
+        inc(hptr, sizeof(THeader));
 end;
 
 procedure HeapByte(b:byte);
@@ -118,32 +135,34 @@ begin
         offset := d  + 4 + 1 + NameLength + 1;
         //writeln('WordCodeptr:offset:', offset);
         WordCodeptr := TCell(GetHeapPointer(offset));
+        wptr :=  WordCodeptr;
         //writeln('WordCodeptr:',  Int64(WordCodeptr));
 
 end;
-procedure CreateHeader(immediate:byte; name:string);
-var tmp, i:Integer;
+procedure NoOp();
 begin
-   tmp := hptr; // this will become the new top of the dictionary
-   Heap32(latest);  // link
-   latest := tmp;
-   HeapByte(immediate); // flags, of which immediate is one
-   heap[hptr] := length(name); inc(hptr); // name length
-
-   // write out the name
-   name := UpperCase(name);
-   for i := 1 to length(name) do
-   begin
-           heap[hptr] := ord(name[i]);
-           inc(hptr);
-   end;
+        // a procedure that does nothing gracefully
 end;
 
-procedure AddAtomic(immediate:byte; name:string; ptr:Pointer);
-//var        tmp, i:Integer;
+procedure CreateHeader(immediate:byte; name:string; proc:TProc);
+var i:Integer; pstr:PString; hdr:THeader; tmp, h:THeaderPtr;
 begin
-     CreateHeader(immediate, name);
-     HeapPointer(ptr); // codeptr
+     New(h);
+     //tmp := h;
+     h^.link:= latest;
+     h^.flags := immediate;
+     h^.name:= NewStr(UpperCase(name));
+     h^.codeptr := proc;
+     //HeapifyHeader(hdr);
+     latest := h;
+     //writeln('latest', latest);
+
+end;
+
+procedure AddPrim(immediate:byte; name:string; ptr:TProc);
+begin
+     CreateHeader(immediate, name, ptr);
+     //HeapPointer(ptr); // codeptr
 end;
 
 procedure Push(val:TCell);
@@ -170,25 +189,53 @@ procedure P_create();
 begin
      P_word(); // read the name of the word being defined
      //writeln(' word being created is:', yytext);
-     CreateHeader(0, yytext); // it assumes its not immediate
+     CreateHeader(0, yytext, @NoOp); // it assumes its not immediate
 end;
 
-procedure DoCol();
+function rpop():Integer;
 begin
+   rpop := rstack[rsp];
+   //push(rpop);
+   inc(rsp, -1);
+end;
+procedure P_Exit();
+begin
+   writeln('TODO Exit');
+   iptr := rpop();
+end;
+procedure DoCol(); // the inner interpreter
+//var ip:TCell;
+begin
+   iptr := wptr + sizeof(TCell);
+   while iptr <> TCell(@P_exit) do
+   begin
+           writeln('DoCol doing', iptr);
+           ExecPointer(Pointer(iptr));
+           inc(iptr, sizeof(TCell));
+   end;
+
+   //ip :=
      writeln('DoCol TODO');
 end;
 
 
-procedure Colon();
+procedure P_colon();
 begin
      P_create(); // construct the dictionary entry header
-     HeapPointer(@Docol);
+     latest^.codeptr:= @DoCol;
+     //HeapPointer(@Docol);
+     //HeapPointer(hptr); // this will be used to DOCOL to set the UP
      state := compiling;
 end;
 
-procedure SemiColon();
+
+
+
+
+procedure P_semicolon();
 begin
-     state := interpreting;
+   HeapPointer(@P_Exit);
+   state := interpreting;
         writeln('Semicolon TODO');
 end;
 
@@ -292,41 +339,40 @@ begin
         end;
 end;
 
-procedure ExecPointer(ptr:Pointer);
+procedure ExecPointer(ptr:THeaderPtr);
 var ptr1:TProc;
 begin
-        ptr1 := TProc(ptr);
+        ptr1 := TProc(ptr^.codeptr);
         ptr1();
 end;
 
-function mediate(wptr:Integer):boolean; // opposite of immediate
-var flags:byte;
+function mediate(h:THeaderPtr):boolean; // opposite of immediate
+//var flags:byte;
 begin
-        flags := heap[wptr+4];
-        mediate := ((flags and 1) = 0);
+        //flags := heap[wptr+4];
+     //mediate := ((flags and 1) = 0);
+     mediate := ((h^.flags and 1) = 0);
 end;
 
 procedure EvalWord(name:string);
-var wptr:Integer; ptr:Pointer;
+var header:Integer; ptr:Pointer; h:THeaderPtr;
 begin
-        wptr := P_find(name);
-        if wptr = 0 then
+        h := P_find(name);
+        if h = Nil then
         begin
                 writeln('Word unfound:', name);
                 exit;
         end;
 
-        //writeln('word found');
-        ptr := Pointer(WordCodeptr(wptr));
-        //writeln('word found:', Integer(ptr));
-        if (state = compiling) and mediate(wptr) then
+        ptr := Pointer(WordCodeptr(header));
+        if (state = compiling) and mediate(h) then
         begin
                 writeln('Compiling ', name);
                 HeapPointer(ptr);
         end
         else
         begin
-                ExecPointer(ptr);
+                ExecPointer(h);
         end;
 end;
 
@@ -370,9 +416,10 @@ begin
      //info();
      while true do begin
              try
-                        write(':');
+                        //write(':');
                         yyparse();
 			if yytext = 'bye' then exit;
+                        writeln(' ok'); // although it might not be
                         //Dump();
 		except
 		on E: Exception do
@@ -387,7 +434,7 @@ initialization
 begin
         //procMap := TProcMap.Create;
         IntStackSize := 0;
-        latest := 0;
+        latest := Nil;
         //ip := 1;
         tib := '';
         yytext := '';
@@ -396,15 +443,17 @@ begin
         //heaptop := 1;
         hptr := 1;
         state := interpreting;
+        rsp := 0;
         //heap1 := malloc(10000);
 
         // prefix normal words with 0, immediate words with 1
 
-        AddAtomic(0, 'BRANCH', @Branch);
-        AddAtomic(0, '?BRANCH', @qBranch);
-        AddAtomic(0, ':', @Colon);
-        AddAtomic(1, ';', @Semicolon);
-        AddAtomic(0, 'CREATE', @P_create);
+        AddPrim(0, 'BRANCH', @Branch);
+        AddPrim(0, '?BRANCH', @qBranch);
+        AddPrim(0, ':', @P_colon);
+        AddPrim(1, ';', @P_semicolon);
+        AddPrim(0, 'CREATE', @P_create);
+        AddPrim(0, 'DOCOL', @docol);
         //lookup('create');
 end;
 
