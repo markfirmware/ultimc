@@ -116,37 +116,37 @@ begin
         //writeln('WordCodeptr:',  Int64(WordCodeptr));
 
 end;
+procedure WriteHeader(immediate:byte; name:string);
+var tmp, i:Integer;
+begin
+   tmp := hptr; // this will become the new top of the dictionary
+   Heap32(latest);  // link
+   latest := tmp;
+   HeapByte(immediate); // flags, of which immediate is one
+   heap[hptr] := length(name); inc(hptr); // name length
+
+   // write out the name
+   for i := 1 to length(name) do
+   begin
+           heap[hptr] := ord(name[i]);
+           inc(hptr);
+   end;
+end;
 
 procedure AddAtomic(immediate:byte; name:string; ptr:Pointer);
-var
-        tmp, i:Integer;
+//var        tmp, i:Integer;
 begin
-        tmp := hptr; // this will become the new top of the dictionary
-        Heap32(latest);  // link
-        HeapByte(immediate); // flags, of which immediate is one
-        heap[hptr] := length(name); inc(hptr); // name length
-
-        // write out the name
-        for i := 1 to length(name) do
-        begin
-                heap[hptr] := ord(name[i]);
-                inc(hptr);
-        end;
-
-        HeapPointer(ptr); // codeptr
-        latest := tmp;
-
+     WriteHeader(immediate, name);
+     HeapPointer(ptr); // codeptr
 end;
 
 procedure Push(val:integer);
 begin
-        IntStackSize := IntStackSize +1;
-        IntStack[IntStackSize] := val;
+     IntStackSize := IntStackSize +1;
+     IntStack[IntStackSize] := val;
 end;
 procedure EvalInteger(val:Integer);
-var
-        //bytes: array[0..3] of byte;
-        i: Integer;
+//var        i: Integer;
 begin
         //writeln('EvalInteger called:', val);
         Push(val);
@@ -162,7 +162,8 @@ end;
 
 procedure P_create();
 begin
-     P_word(); // read the name of the function being defined
+     P_word(); // read the name of the word being defined
+     WriteHeader(0, yytext);
 end;
 
 procedure DoCol();
