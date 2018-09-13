@@ -131,6 +131,7 @@ begin
    heap[hptr] := length(name); inc(hptr); // name length
 
    // write out the name
+   name := UpperCase(name);
    for i := 1 to length(name) do
    begin
            heap[hptr] := ord(name[i]);
@@ -168,7 +169,7 @@ end;
 procedure P_create();
 begin
      P_word(); // read the name of the word being defined
-     writeln(' word being created is:', yytext);
+     //writeln(' word being created is:', yytext);
      CreateHeader(0, yytext); // it assumes its not immediate
 end;
 
@@ -298,7 +299,7 @@ begin
 end;
 
 procedure EvalWord(name:string);
-var wptr:Integer; ptr:Pointer; ptr1:TProc;
+var wptr:Integer; ptr:Pointer;
 begin
         wptr := P_find(name);
         if wptr = 0 then
