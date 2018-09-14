@@ -78,6 +78,7 @@ function DictName(ptr:Integer):string;
 function GetHeap32(pos:Integer):Integer;
 procedure DoCol();
 function ToHeaderPtr(ip:Integer):THeaderPtr;
+procedure HeapifyHeader(hdr:THeaderPtr);
 
 implementation
 
@@ -383,7 +384,7 @@ begin
         //ptr := Pointer(WordCodeptr(header));
         if (state = compiling) and mediate(h) then
         begin
-                writeln('Compiling ', name);
+                //writeln('Compiling ', name);
                 HeapPointer(h);
         end
         else

@@ -22,7 +22,7 @@ begin
                 write(IntStack[i], ' ');
 end;
 
-function Pop(): Integer;
+function Pop(): TCell;
 begin
         Pop := 0;
         if(IntStackSize<1) then
@@ -80,17 +80,21 @@ begin
 end;
 
 procedure P_tick();
-var h:THeaderPtr;
+var h:THeaderPtr; h64:Int64;
 begin
      P_word();
      h := P_find(yytext);
-     Push(Int64(h));
+     h64 := Int64(h);
+     //HeapifyHeader(h);
+     Push(h64);
 
 end;
 procedure P_execute();
 var ptr:THeaderPtr;
 begin
+     //writeln('Execute1');
      ptr := THeaderPtr(Pop());
+     //writeln('Execute:',  ptr^.name^);
      ExecHeader(ptr);
 end;
 

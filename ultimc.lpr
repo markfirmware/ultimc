@@ -52,7 +52,7 @@ begin
   FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
    WindowHandle:=ConsoleWindowCreate(ConsoleDeviceGetDefault,CONSOLE_POSITION_FULL,True);
- ConsoleWindowWriteLn(WindowHandle,'Hello Ultibo!');
+ ConsoleWindowWriteLn(WindowHandle,'Ultimc started');
 
  {Wait for C: drive to be ready}
  while not DirectoryExists('C:\') do
@@ -60,15 +60,10 @@ begin
    {Sleep for a second}
    Sleep(1000);
   end;
-    ConsoleWindowWriteLn(WindowHandle,'Directory now seems mounted!');
-
-
-
-  writeln('this seems to work     ........ writeln   .. yipee ');
-
+    ConsoleWindowWriteLn(WindowHandle,'Directory mounted');
 
   GluteRepl();
 
-   ThreadHalt(0);
+  ThreadHalt(0);
 end.
 
