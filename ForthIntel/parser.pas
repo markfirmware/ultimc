@@ -224,6 +224,7 @@ begin
 end;
 procedure P_Exit();
 begin
+   // don't do anything. Let DOCOL detect and handle things
    writeln('TODO Exit');
    //ip := rpop();
 end;
@@ -240,7 +241,7 @@ begin
    ip := wptr;
 again:
    hdr := ToHeaderPtr(ip);
-   if hdr^.codeptr = @P_semicolon then exit;
+   if (hdr^.codeptr = @P_semicolon) or (hdr^.codeptr = @P_exit) then exit;
    rpush(ip + sizeof(Pointer));
    ExecHeader(hdr);
    ip := rpop();
@@ -473,6 +474,7 @@ begin
         AddPrim(0, 'CREATE', @P_create);
         AddPrim(0, 'DOCOL', @docol);
         AddPrim(0, 'BYE', @P_bye);
+        AddPrim(0, 'EXIT', @P_exit);
         //lookup('create');
 end;
 
