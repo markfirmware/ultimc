@@ -51,13 +51,15 @@ var
         latest:THeaderPtr; // the latest word being defined
 
         hptr:Integer; // pointer into the heap
-        //ip:Integer; // instruction pointer to the heap
+        ip:Integer; // instruction pointer to the heap
         heap:array[1..10000] of byte;
         wptr:Integer; // some kind of word pointer
-        iptr:Integer; // some kind of instruction pointer
+        //iptr:Integer; // some kind of instruction pointer
 
         rstack:array[1..200] of TCell; // return stack
         rsp:Integer; // return stack pointer
+
+        bye:boolean; // time for dinner
 
 
 
@@ -96,7 +98,7 @@ begin
 end;
 
 function P_find(name:string): THeaderPtr;
-var d:THeaderPtr; hdr:THeader;s:PString;
+//var hdr:THeader;s:PString;
 begin
      //d := latest;
      P_find := latest;
@@ -154,7 +156,7 @@ begin
 end;
 
 procedure CreateHeader(immediate:byte; name:string; proc:TProc);
-var i:Integer; pstr:PString; hdr:THeader; tmp, h:THeaderPtr;
+var h:THeaderPtr;
 begin
      New(h);
      //tmp := h;
@@ -173,6 +175,11 @@ procedure AddPrim(immediate:byte; name:string; ptr:TProc);
 begin
      CreateHeader(immediate, name, ptr);
      //HeapPointer(ptr); // codeptr
+end;
+
+procedure P_bye();
+begin
+     bye := true;
 end;
 
 procedure Push(val:TCell);
@@ -202,6 +209,12 @@ begin
      CreateHeader(0, yytext, @NoOp); // it assumes its not immediate
 end;
 
+procedure rpush(i:Integer);
+begin
+     inc(rsp);
+     rstack[rsp] := i;
+end;
+
 function rpop():Integer;
 begin
    rpop := rstack[rsp];
@@ -211,21 +224,27 @@ end;
 procedure P_Exit();
 begin
    writeln('TODO Exit');
-   iptr := rpop();
+   //ip := rpop();
+end;
+procedure P_semicolon();
+begin
+     HeapPointer(P_find(';'));
+     state := interpreting;
 end;
 procedure DoCol(); // the inner interpreter
 //var ip:TCell;
+label again;
+var hdr:THeaderPtr;
 begin
-   iptr := wptr + sizeof(TCell);
-   while iptr <> TCell(@P_exit) do
-   begin
-           writeln('DoCol doing', iptr);
-           ExecHeader(Pointer(iptr));
-           inc(iptr, sizeof(TCell));
-   end;
-
-   //ip :=
-     writeln('DoCol TODO');
+   ip := wptr;
+again:
+   hdr := ToHeaderPtr(ip);
+   if hdr^.codeptr = @P_semicolon then exit;
+   rpush(ip + sizeof(Pointer));
+   ExecHeader(hdr);
+   ip := rpop();
+   //inc(ip, sizeof(Pointer));
+   goto again;
 end;
 
 
@@ -240,13 +259,6 @@ end;
 
 
 
-
-
-procedure P_semicolon();
-begin
-     HeapPointer(P_find(';'));
-     state := interpreting;
-end;
 
 procedure DumpExceptionCallStack(E: Exception);
 var
@@ -352,6 +364,7 @@ procedure ExecHeader(ptr:THeaderPtr);
 var ptr1:TProc;
 begin
         ptr1 := TProc(ptr^.codeptr);
+        wptr := ptr^.hptr;
         ptr1();
 end;
 
@@ -421,8 +434,8 @@ begin
              try
                         //write(':');
                         yyparse();
-			if yytext = 'bye' then exit;
-                        writeln(' ok'); // although it might not be
+			if bye then exit;
+                        if yypos >= length(tib) then writeln(' ok'); // although it might not be
                         //Dump();
 		except
 		on E: Exception do
@@ -447,6 +460,7 @@ begin
         hptr := 1;
         state := interpreting;
         rsp := 0;
+        bye := false;
         //heap1 := malloc(10000);
 
         // prefix normal words with 0, immediate words with 1
@@ -457,6 +471,7 @@ begin
         AddPrim(1, ';', @P_semicolon);
         AddPrim(0, 'CREATE', @P_create);
         AddPrim(0, 'DOCOL', @docol);
+        AddPrim(0, 'BYE', @P_bye);
         //lookup('create');
 end;
 
