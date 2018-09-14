@@ -32,6 +32,7 @@ type
           flags:byte;
           name:PString;
           codeptr:TProc;
+          hptr:Integer; // pointer to the heap
         end; // data will extend beyond this
 
 var
@@ -74,6 +75,7 @@ procedure ExecHeader(ptr:THeaderPtr);
 function DictName(ptr:Integer):string;
 function GetHeap32(pos:Integer):Integer;
 procedure DoCol();
+function ToHeaderPtr(ip:Integer):THeaderPtr;
 
 implementation
 
@@ -103,10 +105,15 @@ begin
      if(P_find = Nil) then Raise exception.create(name + ' unfound');
 end;
 
-procedure HeapifyHeader(hdr:THeader);
+function ToHeaderPtr(ip:Integer):THeaderPtr;
 begin
-        Move(hdr, heap[hptr], sizeof(THeader));
-        inc(hptr, sizeof(THeader));
+     Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
+end;
+
+procedure HeapifyHeader(hdr:THeaderPtr);
+begin
+        Move(hdr, heap[hptr], sizeof(Pointer));
+        inc(hptr, sizeof(Pointer));
 end;
 
 procedure HeapByte(b:byte);
@@ -155,6 +162,7 @@ begin
      h^.flags := immediate;
      h^.name:= NewStr(UpperCase(name));
      h^.codeptr := proc;
+     h^.hptr := hptr; // top of the heap
      //HeapifyHeader(hdr);
      latest := h;
      //writeln('latest', latest);
@@ -236,9 +244,8 @@ end;
 
 procedure P_semicolon();
 begin
-   HeapPointer(@P_Exit);
-   state := interpreting;
-        writeln('Semicolon TODO');
+     HeapPointer(P_find(';'));
+     state := interpreting;
 end;
 
 procedure DumpExceptionCallStack(E: Exception);
@@ -360,12 +367,6 @@ procedure EvalWord(name:string);
 var header:Integer; ptr:Pointer; h:THeaderPtr;
 begin
         h := P_find(name);
-        if h = Nil then
-        begin
-                writeln('Word unfound:', name);
-                exit;
-        end;
-
         //ptr := Pointer(WordCodeptr(header));
         if (state = compiling) and mediate(h) then
         begin

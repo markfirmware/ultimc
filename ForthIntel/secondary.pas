@@ -95,17 +95,27 @@ begin
 end;
 
 procedure P_see();
-var h:THeaderPtr;
+var hdr:THeaderPtr; ip:Integer;name:String;
+label again;
 begin
      P_word();
-     h := P_find(yytext);
+     hdr := P_find(yytext);
 
-     if(h^.codeptr <> @Docol) then
+     if(hdr^.codeptr <> @Docol) then
      begin
              writeln(Uppercase(yytext), ' is primitive');
              exit;
      end;
-     writeln('seeing ', h^.name^);
+
+     ip := hdr^.hptr;
+again:
+     hdr := ToHeaderPtr(ip);
+     name := hdr^.name^;
+     write(name, ' ');
+     inc(ip, sizeof(Pointer));
+     if name <> ';' then goto again;
+
+     //writeln('seeing ', h^.name^);
 end;
 
 initialization
