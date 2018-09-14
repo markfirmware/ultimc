@@ -98,6 +98,8 @@ begin
      ExecHeader(ptr);
 end;
 
+
+{* TODO fix case that word is literal, or ip++ is just plain wrong *}
 procedure P_see();
 var hdr:THeaderPtr; ip:Integer;name:String;
 label again;
@@ -110,6 +112,14 @@ begin
              writeln(Uppercase(yytext), ' is primitive');
              exit;
      end;
+
+     {*
+     while hdr^.name^ <> ';' do
+     begin
+       write( hdr^.name^, ' ');
+       hdr := hdr^.link;
+     end;
+     *}
 
      ip := hdr^.hptr;
 again:

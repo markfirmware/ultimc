@@ -72,7 +72,7 @@ function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
 function P_find(name:string): THeaderPtr;
-function WordCodeptr(d:Integer):Tcell;
+//function WordCodeptr(d:Integer):Tcell;
 procedure ExecHeader(ptr:THeaderPtr);
 function DictName(ptr:Integer):string;
 function GetHeap32(pos:Integer):Integer;
@@ -123,6 +123,16 @@ procedure HeapByte(b:byte);
 begin
         heap[hptr] := b;
         inc(hptr);
+end;
+
+procedure HeapifyCell(val:TCell);
+begin
+     Move(val, heap[hptr], sizeof(TCell));
+     inc(hptr, sizeof(TCell));
+end;
+function GetHeapCell(pos:Integer): TCell;
+begin
+     Move(heap[pos], GetHeapCell, sizeof(TCell));
 end;
 
 procedure Heap32(val:Integer);
@@ -188,12 +198,7 @@ begin
      IntStackSize := IntStackSize +1;
      IntStack[IntStackSize] := val;
 end;
-procedure EvalInteger(val:TCell);
-//var        i: Integer;
-begin
-        //writeln('EvalInteger called:', val);
-        Push(val);
-end;
+
 
 
 
@@ -393,7 +398,31 @@ begin
                 ExecHeader(h);
         end;
 end;
+procedure P_lit();
+var val:TCell;
+begin
+     val :=  GetHeapCell(rstack[rsp]);
+     rstack[rsp] += sizeof(TCell);
+     //writeln('Lit value:', val);
+     //inc(ip, sizeof(TCell));
+     Push(val);
+end;
 
+procedure EvalInteger(val:TCell);
+begin
+     if state = interpreting then
+     begin
+        Push(val);
+        exit;
+     end;
+
+     // compiling
+     EvalWord('LIT');
+     //CreateHeader(0, 'LIT', @P_lit);
+     HeapifyCell(val);
+     //writeln('rsp-top:', rstack[rsp]);
+     //writeln('EvalInteger value:', val);
+end;
 procedure EvalToken(yytype:TTokenType);
 //var ptr:TGluteProc;
 begin
@@ -475,6 +504,7 @@ begin
         AddPrim(0, 'DOCOL', @docol);
         AddPrim(0, 'BYE', @P_bye);
         AddPrim(0, 'EXIT', @P_exit);
+        AddPrim(0, 'LIT', @P_lit);
         //lookup('create');
 end;
 
