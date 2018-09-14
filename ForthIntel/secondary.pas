@@ -22,20 +22,7 @@ begin
                 write(IntStack[i], ' ');
 end;
 
-function Pop(): TCell;
-begin
-        Pop := 0;
-        if(IntStackSize<1) then
-        begin
-                writeln('Stack underflow');
-                exit;
-        end;
 
-        Pop := IntStack[IntStackSize];
-        IntStackSize := IntStackSize - 1;
-
-
-end;
 
 
 procedure P_plus();
@@ -131,6 +118,22 @@ again:
 
      //writeln('seeing ', h^.name^);
 end;
+procedure P_lsb();
+begin
+     state := interpreting;
+end;
+procedure P_rsb();
+begin
+     state := compiling;
+end;
+procedure P_cell();
+begin
+     Push(sizeof(TCell));
+end;
+procedure P_clearstack();
+begin
+     IntStackSize := 0;
+end;
 
 initialization
 begin
@@ -143,6 +146,10 @@ begin
           AddPrim(0, '''', @P_tick);
           AddPrim(0, 'EXECUTE', @P_execute);
           AddPrim(0, 'SEE', @P_see);
+          AddPrim(1, '[', @P_lsb);
+          AddPrim(1, ']', @P_rsb);
+          AddPrim(0, 'CELL', @P_cell);
+          AddPrim(0, 'CLEARSTACK', @P_clearstack);
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();

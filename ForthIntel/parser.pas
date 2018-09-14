@@ -68,13 +68,14 @@ var
 procedure GluteRepl();
 procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
+function Pop(): TCell;
 function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
 function P_find(name:string): THeaderPtr;
 //function WordCodeptr(d:Integer):Tcell;
 procedure ExecHeader(ptr:THeaderPtr);
-function DictName(ptr:Integer):string;
+//function DictName(ptr:Integer):string;
 function GetHeap32(pos:Integer):Integer;
 procedure DoCol();
 function ToHeaderPtr(ip:Integer):THeaderPtr;
@@ -86,17 +87,36 @@ implementation
 
 
 
-
+{*
 function DictName(ptr:Integer):string;
 var i:Integer;
 begin
         DictName := '';
         for i:= 1 to heap[ptr+5] do DictName += char(heap[ptr+5+i]);
 end;
+*}
+
+{$push}
+//{$warn 5057 off}  // hide warning var not initialized
+{$hints off}   // hide warning var not initialized
 function GetHeap32(pos:Integer):Integer;
 begin
         Move(heap[pos], GetHeap32, 4);
 end;
+
+function ToHeaderPtr(ip:Integer):THeaderPtr;
+begin
+     Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
+end;
+function GetHeapCell(pos:Integer): TCell;
+begin
+     Move(heap[pos], GetHeapCell, sizeof(TCell));
+end;
+function GetHeapPointer(pos:Integer) : Pointer;
+begin
+        Move(heap[pos], GetHeapPointer, sizeof(Pointer));
+end;
+{$pop}
 
 function P_find(name:string): THeaderPtr;
 //var hdr:THeader;s:PString;
@@ -108,10 +128,6 @@ begin
      if(P_find = Nil) then Raise exception.create(name + ' unfound');
 end;
 
-function ToHeaderPtr(ip:Integer):THeaderPtr;
-begin
-     Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
-end;
 
 procedure HeapifyHeader(hdr:THeaderPtr);
 begin
@@ -130,10 +146,7 @@ begin
      Move(val, heap[hptr], sizeof(TCell));
      inc(hptr, sizeof(TCell));
 end;
-function GetHeapCell(pos:Integer): TCell;
-begin
-     Move(heap[pos], GetHeapCell, sizeof(TCell));
-end;
+
 
 procedure Heap32(val:Integer);
 begin
@@ -146,10 +159,8 @@ begin
         inc(hptr, sizeof(Pointer));
 end;
 
-function GetHeapPointer(pos:Integer) : Pointer;
-begin
-        Move(heap[pos], GetHeapPointer, sizeof(Pointer));
-end;
+
+{*
 function WordCodeptr(d:Integer):TCell;
 var offset:Integer;NameLength:byte;
 begin
@@ -161,6 +172,7 @@ begin
         //writeln('WordCodeptr:',  Int64(WordCodeptr));
 
 end;
+*}
 procedure NoOp();
 begin
         // a procedure that does nothing gracefully
@@ -199,8 +211,25 @@ begin
      IntStack[IntStackSize] := val;
 end;
 
+function Pop(): TCell;
+begin
+        Pop := 0;
+        if(IntStackSize<1) then
+        begin
+                writeln('Stack underflow');
+                exit;
+        end;
+
+        Pop := IntStack[IntStackSize];
+        IntStackSize := IntStackSize - 1;
 
 
+end;
+procedure P_comma();
+begin
+     //val := Pop();
+     HeapifyCell(Pop());
+end;
 
 
 procedure P_word();
@@ -384,7 +413,7 @@ begin
 end;
 
 procedure EvalWord(name:string);
-var header:Integer; ptr:Pointer; h:THeaderPtr;
+var h:THeaderPtr;
 begin
         h := P_find(name);
         //ptr := Pointer(WordCodeptr(header));
@@ -443,17 +472,20 @@ begin
   //   heaptop := heaptop + 1;
 end;
 
-procedure Branch();
-var i:Integer; yytype:TTokenType;
+procedure P_branch();
+var offset:TCell;
 begin
-        yytype := yylex();
-        EvalToken(yytype);
+     offset := GetHeapCell(rstack[rsp]);
+     //writeln('branch offset:', offset);
+     rstack[rsp] += offset + sizeof(TCell);
 end;
 procedure qBranch();
-var i:Integer; yytype:TTokenType;
+var offset:TCell;
 begin
-     yytype := yylex();
-     EvalToken(yytype);
+     offset := GetHeapCell(rstack[rsp]);
+     //writeln('branch offset:', offset);
+     if Pop() = 0 then rstack[rsp] += offset;
+     rstack[rsp] += sizeof(TCell);
 end;
 
 procedure GluteRepl();
@@ -496,7 +528,7 @@ begin
 
         // prefix normal words with 0, immediate words with 1
 
-        AddPrim(0, 'BRANCH', @Branch);
+        AddPrim(0, 'BRANCH', @P_branch);
         AddPrim(0, '?BRANCH', @qBranch);
         AddPrim(0, ':', @P_colon);
         AddPrim(1, ';', @P_semicolon);
@@ -505,6 +537,7 @@ begin
         AddPrim(0, 'BYE', @P_bye);
         AddPrim(0, 'EXIT', @P_exit);
         AddPrim(0, 'LIT', @P_lit);
+        AddPrim(0, ',', @P_comma);
         //lookup('create');
 end;
 
