@@ -180,6 +180,10 @@ begin
      Push(t1);
      Push(t2);
 end;
+procedure P_backslash();
+begin
+     yypos := length(tib) +1 ; {* simulate an end of line *}
+end;
 
 initialization
 begin
@@ -203,6 +207,7 @@ begin
           AddPrim(0, '@', @P_at);
           AddPrim(0, '!', @P_x);
           AddPrim(0, 'SWAP', @P_swap);
+          Addprim(1, '\', @P_backslash);
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();
