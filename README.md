@@ -15,7 +15,7 @@ This is how you can implement comments:
 ```
 
 
-We can test BRANCH and 0BRANCH as follows:
+We can test `BRANCH` and `0BRANCH` (branch.4th) as follows:
 ```
 : 2cells cell cell + , ; IMMEDIATE
 : test branch 2cells exit dup ;
