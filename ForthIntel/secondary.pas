@@ -128,6 +128,13 @@ begin
      IntStackSize := 0;
 end;
 
+procedure P_include();
+begin
+     P_word();
+     CreateReadStream(yytext);
+end;
+
+
 initialization
 begin
           AddPrim(0, '+',  @P_plus);
@@ -143,6 +150,7 @@ begin
           AddPrim(1, ']', @P_rsb);
           AddPrim(0, 'CELL', @P_cell);
           AddPrim(0, 'CLEARSTACK', @P_clearstack);
+          AddPrim(0, 'INCLUDE', @P_include);
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();

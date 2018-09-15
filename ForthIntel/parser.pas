@@ -66,6 +66,8 @@ var
 
         bye:boolean; // time for dinner
 
+        fpin: TFileStream;
+
 
 
 //procedure InitLexer(s:String);
@@ -82,6 +84,7 @@ procedure ExecHeader(ptr:THeaderPtr);
 procedure DoCol();
 function ToHeaderPtr(ip:Integer):THeaderPtr;
 procedure HeapifyHeader(hdr:THeaderPtr);
+procedure CreateReadStream(name:string);
 
 implementation
 
@@ -128,13 +131,6 @@ procedure HeapifyCell(val:TCell);
 begin
      Move(val, heap[hptr], sizeof(TCell));
      inc(hptr, sizeof(TCell));
-end;
-
-
-procedure Heap32(val:Integer);
-begin
-        Move(val, heap[hptr], 4);
-        inc(hptr, 4);
 end;
 procedure HeapPointer(ptr:Pointer);
 begin
@@ -228,8 +224,6 @@ end;
 procedure P_Exit();
 begin
    // don't do anything. Let DOCOL detect and handle things
-   writeln('TODO Exit');
-   //ip := rpop();
 end;
 procedure P_semicolon();
 begin
@@ -329,6 +323,41 @@ begin
 
 end;
 
+{* TODO this should allow for nested includes. See also ReadLine *}
+procedure CreateReadStream(name:string);
+begin
+     fpin := TFileStream.Create(name, fmOpenRead);
+
+end;
+
+procedure ReadLine();
+//var foo:TFileStream;
+var ch:Char;
+begin
+     //fpin := Nil;
+     //fpin := Nil;
+     yypos := 1;
+
+     {* just using "stdin" *}
+     if fpin = Nil then
+     begin
+          readln(tib);
+          if using_raspberry then writeln(''); // seems to be a quirk
+          exit;
+     end;
+
+     {* we're inputting from a file *}
+     tib := '';
+     ch := #0;
+     while (fpin.Read(ch, 1) = 1) and (ch <> #13) do tib += ch;
+     if (fpin.Read(ch, 1) = 0) then {* end of file *}
+     begin
+          fpin.free();
+          fpin := Nil;
+     end;
+
+end;
+
 function yylex() : TTokenType;
 label FindWord;
 var len, pos0:Integer;
@@ -337,9 +366,7 @@ begin
         //len := length(tib);
         if yypos > length(tib) then
         begin
-                readln(tib);
-                if using_raspberry then writeln(''); // seems to be a quirk
-                yypos := 1;
+           ReadLine()
         end;
         len := length(tib);
         while (yypos <= len) and iswhitespace(tib[yypos]) do yypos := yypos +1;
@@ -462,7 +489,14 @@ procedure GluteRepl();
 //var yytype:TTokenType;
 //input:string;
 begin
-     //info();
+     write('Loading core.4th...');
+     try
+                CreateReadStream('core.4th');
+                writeln('OK');
+     except on E:Exception do
+            writeln('FAILED');
+     end;
+
      while true do begin
              try
                         //write(':');
@@ -495,6 +529,7 @@ begin
         state := interpreting;
         rsp := 0;
         bye := false;
+        fpin := Nil;
         //heap1 := malloc(10000);
 
         // prefix normal words with 0, immediate words with 1
