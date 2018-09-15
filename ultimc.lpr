@@ -21,7 +21,7 @@ uses
   Console,
   Framebuffer,
   GimpPpm
-  , Parser
+  , parser
   , secondary
   //, Glute
   //, GimpPpmGlute
@@ -60,8 +60,7 @@ begin
  ConsoleWindowWriteLn(WindowHandle,'OK');
 
  using_raspberry := true; // needed to fix readln(0 wierdness
-  GluteRepl();
-
-  ThreadHalt(0);
+ MainRepl();
+ ThreadHalt(0);
 end.
 
