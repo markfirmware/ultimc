@@ -9,6 +9,7 @@ interface
 uses
   Classes, SysUtils
   ,parser
+  , heapfuncs
   ;
 
 implementation
@@ -24,6 +25,10 @@ end;
 procedure P_plus();
 begin
         Push(Pop() + Pop());
+end;
+procedure P_minus();
+begin
+        Push(-Pop() + Pop());
 end;
 procedure P_dot();
 begin
@@ -133,11 +138,42 @@ begin
      P_word();
      CreateReadStream(yytext);
 end;
+procedure P_here();
+begin
+     Push(hptr);
+end;
 
+procedure P_immediate();
+var offset:TCellPtr; flags:byte;
+begin
+     latest^.flags:= latest^.flags or 1;
+     //offset := TCellPtr(latest) + sizeof(TCell);
+     //flags := GetHeapByte(offset);
+     //heap[offset] := flags or 1;
+end;
+procedure P_at();
+begin
+     Push(GetHeapCell(Pop));
+end;
+
+procedure P_x();
+begin
+     SetHeapCell(Pop(), Pop());
+end;
+
+procedure P_swap();
+var t1,t2:TCell;
+begin
+     t1 := Pop();
+     t2 := Pop();
+     Push(t1);
+     Push(t2);
+end;
 
 initialization
 begin
-          AddPrim(0, '+',  @P_plus);
+          AddPrim(0, '+', @P_plus);
+          AddPrim(0, '-', @P_minus);
           AddPrim(0, '.', @P_dot);
           AddPrim(0, 'DUP', @P_dup);
           AddPrim(0, '.S',  @P_printstack);
@@ -151,6 +187,11 @@ begin
           AddPrim(0, 'CELL', @P_cell);
           AddPrim(0, 'CLEARSTACK', @P_clearstack);
           AddPrim(0, 'INCLUDE', @P_include);
+          AddPrim(0, 'HERE', @P_here);
+          AddPrim(0, 'IMMEDIATE', @P_immediate);
+          AddPrim(0, '@', @P_at);
+          AddPrim(0, '!', @P_x);
+          AddPrim(0, 'SWAP', @P_swap);
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();

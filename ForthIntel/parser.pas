@@ -12,33 +12,23 @@ uses
         //, contnrs
         , sysutils
 	, variants
+        , heapfuncs
 	;
 
-const MAX_HEAP = 10000;
+
 
 type
 
         TWordType = (atomic, colonic, integral);
-        TProc = procedure();
 
-        {$ifdef CPU32}
-        TCell = Int32;
-        {$else}
-        TCell = Int64;
-        {$endif}
+
+
 
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
 
-        THeaderPtr = ^THeader;
-        THeader = record // a header for a word
-          link:THeaderPtr;
-          flags:byte;
-          name:PString;
-          codeptr:TProc;
-          hptr:Integer; // pointer to the heap
-        end; // data will extend beyond this
+
 var
         using_raspberry:Boolean;
 
@@ -55,9 +45,7 @@ var
         // dictionary items
         latest:THeaderPtr; // the latest word being defined
 
-        hptr:Integer; // pointer into the heap
         ip:Integer; // instruction pointer to the heap
-        heap:array[1..10000] of byte;
         wptr:Integer; // some kind of word pointer
         //iptr:Integer; // some kind of instruction pointer
 
@@ -72,7 +60,7 @@ var
 
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
-procedure GluteRepl();
+procedure MainRepl();
 procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
 function Pop(): TCell;
@@ -82,29 +70,11 @@ procedure P_word();
 function P_find(name:string): THeaderPtr;
 procedure ExecHeader(ptr:THeaderPtr);
 procedure DoCol();
-function ToHeaderPtr(ip:Integer):THeaderPtr;
-procedure HeapifyHeader(hdr:THeaderPtr);
 procedure CreateReadStream(name:string);
+
 
 implementation
 
-{$push}
-//{$warn 5057 off}  // hide warning var not initialized
-{$hints off}   // hide warning var not initialized
-
-function ToHeaderPtr(ip:Integer):THeaderPtr;
-begin
-     Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
-end;
-function GetHeapCell(pos:Integer): TCell;
-begin
-     Move(heap[pos], GetHeapCell, sizeof(TCell));
-end;
-function GetHeapPointer(pos:Integer) : Pointer;
-begin
-        Move(heap[pos], GetHeapPointer, sizeof(Pointer));
-end;
-{$pop}
 
 function P_find(name:string): THeaderPtr;
 begin
@@ -115,28 +85,6 @@ begin
 end;
 
 
-procedure HeapifyHeader(hdr:THeaderPtr);
-begin
-        Move(hdr, heap[hptr], sizeof(Pointer));
-        inc(hptr, sizeof(Pointer));
-end;
-
-procedure HeapByte(b:byte);
-begin
-        heap[hptr] := b;
-        inc(hptr);
-end;
-
-procedure HeapifyCell(val:TCell);
-begin
-     Move(val, heap[hptr], sizeof(TCell));
-     inc(hptr, sizeof(TCell));
-end;
-procedure HeapPointer(ptr:Pointer);
-begin
-        Move(ptr, heap[hptr], sizeof(Pointer));
-        inc(hptr, sizeof(Pointer));
-end;
 
 procedure NoOp();
 begin
@@ -485,7 +433,7 @@ begin
      rstack[rsp] += sizeof(TCell);
 end;
 
-procedure GluteRepl();
+procedure MainRepl();
 //var yytype:TTokenType;
 //input:string;
 begin
@@ -525,7 +473,7 @@ begin
         yypos := 1;
         //dptr := 1;
         //heaptop := 1;
-        hptr := 1;
+
         state := interpreting;
         rsp := 0;
         bye := false;

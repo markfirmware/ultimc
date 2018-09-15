@@ -5,7 +5,7 @@ uses parser, secondary;
 
 begin
   writeln('FortIntel');
-  GluteRepl;
+  MainRepl;
   writeln('ForthIntel exiting');
 end.
 
