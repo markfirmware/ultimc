@@ -21,17 +21,10 @@ begin
         for i := 1 to IntStackSize do
                 write(IntStack[i], ' ');
 end;
-
-
-
-
 procedure P_plus();
 begin
         Push(Pop() + Pop());
 end;
-
-
-
 procedure P_dot();
 begin
         write(Pop(), ' ');
@@ -67,13 +60,12 @@ begin
 end;
 
 procedure P_tick();
-var h:THeaderPtr; h64:Int64;
+var h:THeaderPtr; //h64:Int64;
 begin
      P_word();
      h := P_find(yytext);
-     h64 := Int64(h);
-     //HeapifyHeader(h);
-     Push(h64);
+     //h64 := Int64(h);
+     Push(Integer(h));
 
 end;
 procedure P_execute();

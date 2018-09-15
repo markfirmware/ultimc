@@ -55,13 +55,11 @@ begin
  ConsoleWindowWriteLn(WindowHandle,'Ultimc started');
 
  {Wait for C: drive to be ready}
- while not DirectoryExists('C:\') do
-  begin
-   {Sleep for a second}
-   Sleep(1000);
-  end;
-    ConsoleWindowWriteLn(WindowHandle,'Directory mounted');
+ ConsoleWindowWrite(WindowHandle, 'Mounting drive...');
+ while not DirectoryExists('C:\') do sleep(1000); // 1 second
+ ConsoleWindowWriteLn(WindowHandle,'OK');
 
+ using_raspberry := true; // needed to fix readln(0 wierdness
   GluteRepl();
 
   ThreadHalt(0);

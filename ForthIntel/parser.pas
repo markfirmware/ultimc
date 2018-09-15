@@ -21,7 +21,7 @@ type
         TWordType = (atomic, colonic, integral);
         TProc = procedure();
 
-        TCell = Int64;
+        TCell = Integer;
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
@@ -34,8 +34,8 @@ type
           codeptr:TProc;
           hptr:Integer; // pointer to the heap
         end; // data will extend beyond this
-
 var
+        using_raspberry:Boolean;
 
         state:TState;
         tib:string; // terminal input buffer
@@ -159,20 +159,6 @@ begin
         inc(hptr, sizeof(Pointer));
 end;
 
-
-{*
-function WordCodeptr(d:Integer):TCell;
-var offset:Integer;NameLength:byte;
-begin
-        NameLength := heap[d+5];
-        offset := d  + 4 + 1 + NameLength + 1;
-        //writeln('WordCodeptr:offset:', offset);
-        WordCodeptr := TCell(GetHeapPointer(offset));
-        wptr :=  WordCodeptr;
-        //writeln('WordCodeptr:',  Int64(WordCodeptr));
-
-end;
-*}
 procedure NoOp();
 begin
         // a procedure that does nothing gracefully
@@ -369,6 +355,7 @@ begin
         if yypos > length(tib) then
         begin
                 readln(tib);
+                if using_raspberry then writeln(''); // seems to be a quirk
                 yypos := 1;
         end;
         len := length(tib);
@@ -511,6 +498,7 @@ end;
 
 initialization
 begin
+        using_raspberry := false;
         //procMap := TProcMap.Create;
         IntStackSize := 0;
         latest := Nil;
