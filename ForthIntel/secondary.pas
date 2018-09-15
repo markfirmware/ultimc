@@ -198,6 +198,20 @@ begin
      if Pop() = 0 then Push(1) else Push(0);
 end;
 
+procedure P_if();
+begin
+     HeapPointer(P_find('0BRANCH'));
+     P_here();
+     HeapPointer(Pointer($BAD)); // this is backpatched later by THEN ($BAD = 2989)
+end;
+procedure P_then();
+var  backpatch, offset:TCell;
+begin
+     backpatch := Pop();
+     offset := hptr - backpatch;
+     SetHeapCell(backpatch, offset);
+end;
+
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -223,6 +237,8 @@ begin
           AddPrim(0, '!', @P_exclaim);
           AddPrim(0, 'SWAP', @P_swap);
           AddPrim(0, 'NOT',  @P_not);
+          AddPrim(1, 'IF', @P_if);
+          AddPrim(1, 'THEN', @P_then);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
