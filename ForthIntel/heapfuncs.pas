@@ -36,7 +36,7 @@ var
 procedure HeapifyCell(val:TCell);
 procedure HeapPointer(ptr:Pointer);
 function ToHeaderPtr(ip:Integer):THeaderPtr;
-function GetHeapCell(pos:Integer): TCell;
+function GetHeapCell(pos:TCellPtr): TCell;
 function GetHeapPointer(pos:Integer) : Pointer;
 procedure SetHeapCell(ptr:TCellPtr; val:TCell);
 
@@ -49,13 +49,17 @@ function ToHeaderPtr(ip:Integer):THeaderPtr;
 begin
      Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
 end;
-function GetHeapCell(pos:Integer): TCell;
+function GetHeapCell(pos:TCellPtr): TCell;
 begin
      Move(heap[pos], GetHeapCell, sizeof(TCell));
 end;
 function GetHeapPointer(pos:Integer) : Pointer;
 begin
         Move(heap[pos], GetHeapPointer, sizeof(Pointer));
+end;
+function GetHeapByte(pos:TCellPtr):byte;
+begin
+     Move(heap[pos], GetHeapByte, sizeof(byte));
 end;
 {$pop}
 
@@ -75,10 +79,7 @@ begin
         inc(hptr);
 end;
 
-function GetHeapByte(pos:TCellPtr):byte;
-begin
-     Move(heap[pos], GetHeapByte, sizeof(byte));
-end;
+
 procedure HeapifyCell(val:TCell);
 begin
      Move(val, heap[hptr], sizeof(TCell));

@@ -46,8 +46,9 @@ var
         latest:THeaderPtr; // the latest word being defined
 
         ip:Integer; // instruction pointer to the heap
-        wptr:Integer; // some kind of word pointer
-        //iptr:Integer; // some kind of instruction pointer
+
+        {* this points to the data on the heap of the word. Very magical! *}
+        wptr:Integer;
 
         rstack:array[1..200] of TCell; // return stack
         rsp:Integer; // return stack pointer
@@ -86,10 +87,7 @@ end;
 
 
 
-procedure NoOp();
-begin
-        // a procedure that does nothing gracefully
-end;
+
 
 procedure CreateHeader(immediate:byte; name:string; proc:TProc);
 var h:THeaderPtr;
@@ -150,11 +148,23 @@ begin
      yylex();
 end;
 
+procedure P_lrb_create_rrb();
+//var val:Tcell; hdr:THeaderPtr;
+begin
+//ip := wptr;
+   //hdr := ToHeaderPtr(wptr);
+   //writeln('(create):', TCell(hdr));
+   //hdr^.hptr;
+
+     //val :=  GetHeapCell(hdr);
+     Push(TCell(wptr));
+end;
+
 procedure P_create();
 begin
      P_word(); // read the name of the word being defined
      //writeln(' word being created is:', yytext);
-     CreateHeader(0, yytext, @NoOp); // it assumes its not immediate
+     CreateHeader(0, yytext, @P_lrb_create_rrb); // it assumes its not immediate
 end;
 
 procedure rpush(i:Integer);
@@ -297,12 +307,20 @@ begin
      {* we're inputting from a file *}
      tib := '';
      ch := #0;
-     while (fpin.Read(ch, 1) = 1) and (ch <> #13) do tib += ch;
-     if (fpin.Read(ch, 1) = 0) then {* end of file *}
+     while (fpin.Read(ch, 1) = 1) and (ch <> #10) do tib += ch;
+     if (fpin.Position >= fpin.Size) then
      begin
           fpin.free();
           fpin := Nil;
      end;
+     {*
+     if (fpin.Read(ch, 1) = 0) then
+     begin
+          fpin.free();
+          fpin := Nil;
+     end;
+     *}
+     //writeln('ReadLine:tib:', tib);
 
 end;
 
@@ -377,8 +395,6 @@ var val:TCell;
 begin
      val :=  GetHeapCell(rstack[rsp]);
      rstack[rsp] += sizeof(TCell);
-     //writeln('Lit value:', val);
-     //inc(ip, sizeof(TCell));
      Push(val);
 end;
 
@@ -422,15 +438,28 @@ var offset:TCell;
 begin
      offset := GetHeapCell(rstack[rsp]);
      //writeln('branch offset:', offset);
-     rstack[rsp] += offset + sizeof(TCell);
+     rstack[rsp] += offset;
 end;
-procedure qBranch();
+procedure P_0branch();
 var offset:TCell;
 begin
      offset := GetHeapCell(rstack[rsp]);
      //writeln('branch offset:', offset);
-     if Pop() = 0 then rstack[rsp] += offset;
-     rstack[rsp] += sizeof(TCell);
+     if Pop() = 0 then rstack[rsp] += offset else rstack[rsp] += sizeof(TCell);
+     //rstack[rsp] += sizeof(TCell);
+end;
+
+procedure P_backslash();
+begin
+     yypos := length(tib) +1 ; {* simulate an end of line *}
+end;
+procedure DisasterRecovery();
+begin
+     P_backslash(); {* just trash the input buffer *}
+     IntStackSize := 0; {* reset the stack *}
+     rsp := 0; {* reset the return stack? *}
+     state := interpreting;
+
 end;
 
 procedure MainRepl();
@@ -445,19 +474,19 @@ begin
             writeln('FAILED');
      end;
 
-     while true do begin
-             try
-                        //write(':');
-                        yyparse();
-			if bye then exit;
-                        if yypos >= length(tib) then writeln(' ok'); // although it might not be
-                        //Dump();
-		except
+     while true do
+     try
+                yyparse();
+                if bye then exit;
+                if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
+     except
 		on E: Exception do
+                begin
 			DumpExceptionCallStack(E);
-		end;
-     end;
+                        DisasterRecovery();
+                end;
 
+     end;
 end;
 
 
@@ -483,7 +512,7 @@ begin
         // prefix normal words with 0, immediate words with 1
 
         AddPrim(0, 'BRANCH', @P_branch);
-        AddPrim(0, '?BRANCH', @qBranch);
+        AddPrim(0, '0BRANCH', @P_0branch);
         AddPrim(0, ':', @P_colon);
         AddPrim(1, ';', @P_semicolon);
         AddPrim(0, 'CREATE', @P_create);
@@ -492,6 +521,8 @@ begin
         AddPrim(0, 'EXIT', @P_exit);
         AddPrim(0, 'LIT', @P_lit);
         AddPrim(0, ',', @P_comma);
+        AddPrim(1, '\', @P_backslash);
+        AddPrim(0, '(CREATE)', @P_lrb_create_rrb);
         //lookup('create');
 end;
 

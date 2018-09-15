@@ -15,38 +15,15 @@ This is how you can implement comments:
 ```
 
 
-We can test the BRANCH word as follows:
+We can test BRANCH and 0BRANCH as follows:
 ```
-	: test branch [ cell , ] exit dup ;
-```
-Then
-```
-	clearstack 22 test .s
-```
-should output:
-```
-	22 22
-```
+: 2cells cell cell + , ; IMMEDIATE
+: test branch 2cells exit dup ;
+clearstack 10 test .s \ expected output: 10 10
 
-Test the ?BRANCH word as follows:
-```
-	: test ?branch [ cell , ] exit dup ;
-```
-Then
-```
-	clearstack 22 0 test .s
-```
-should output:
-```
-	22 22
-```
-whilst
-```
-	clearstack 22 1 test .s
-```
-will output:
-```
-	22
+: 0test 0branch 2cells exit dup ;
+clearstack 11 0 0test .s \ expected output: 11 11
+clearstack 12 1 0test .s \ expected output: 12
 ```
 
 ## See also

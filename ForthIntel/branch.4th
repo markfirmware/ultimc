@@ -1,8 +1,9 @@
-: test branch [ cell , ] exit dup ;
-clearstack 22 test .s
+: 2cells cell cell + , ; IMMEDIATE
+: test branch 2cells exit dup ;
+clearstack 10 test .s \ expected output: 10 10
 
-: test ?branch [ cell , ] exit dup ;
-clearstack 22 0 test .s
-clearstack 22 1 test .s
+: 0test 0branch 2cells exit dup ;
+clearstack 11 0 0test .s \ expected output: 11 11
+clearstack 12 1 0test .s \ expected output: 12
 
 bye

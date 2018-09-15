@@ -30,6 +30,18 @@ procedure P_minus();
 begin
         Push(-Pop() + Pop());
 end;
+procedure P_mul();
+begin
+        Push(Pop() * Pop());
+end;
+procedure P_div();
+var t1,t2:TCell;
+begin
+        t1 := Pop();
+        t2 := Pop();
+        //t3 := t1/t2;
+        Push(t2 div t1);
+end;
 procedure P_dot();
 begin
         write(Pop(), ' ');
@@ -115,7 +127,7 @@ again:
      hdr := ToHeaderPtr(ip);
      name := hdr^.name^;
      write(name, ' ');
-     if name = 'LIT' then
+     if (name = 'LIT') or (name = '0BRANCH') or (name = 'BRANCH') then
      begin
              inc(ip, sizeof(Pointer));
              write(GetHeapCell(ip), ' ');
@@ -158,18 +170,18 @@ procedure P_immediate();
 //var offset:TCellPtr; flags:byte;
 begin
      latest^.flags:= latest^.flags or 1;
-     //offset := TCellPtr(latest) + sizeof(TCell);
-     //flags := GetHeapByte(offset);
-     //heap[offset] := flags or 1;
 end;
 procedure P_at();
 begin
      Push(GetHeapCell(Pop));
 end;
 
-procedure P_x();
+procedure P_exclaim();
+var pos:TCellPtr; val:Tcell;
 begin
-     SetHeapCell(Pop(), Pop());
+     pos := Pop();
+     val := Pop();
+     SetHeapCell(pos, val);
 end;
 
 procedure P_swap();
@@ -180,15 +192,18 @@ begin
      Push(t1);
      Push(t2);
 end;
-procedure P_backslash();
+
+procedure P_not();
 begin
-     yypos := length(tib) +1 ; {* simulate an end of line *}
+     if Pop() = 0 then Push(1) else Push(0);
 end;
 
 initialization
 begin
           AddPrim(0, '+', @P_plus);
           AddPrim(0, '-', @P_minus);
+          AddPrim(0, '*', @P_mul);
+          AddPrim(0, '/', @P_div);
           AddPrim(0, '.', @P_dot);
           AddPrim(0, 'DUP', @P_dup);
           AddPrim(0, '.S',  @P_printstack);
@@ -205,9 +220,10 @@ begin
           AddPrim(0, 'HERE', @P_here);
           AddPrim(0, 'IMMEDIATE', @P_immediate);
           AddPrim(0, '@', @P_at);
-          AddPrim(0, '!', @P_x);
+          AddPrim(0, '!', @P_exclaim);
           AddPrim(0, 'SWAP', @P_swap);
-          Addprim(1, '\', @P_backslash);
+          AddPrim(0, 'NOT',  @P_not);
+
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();
