@@ -41,11 +41,20 @@ procedure P_xcept();
 begin
 	Raise exception.create('Xcept exception test');
 end;
+
+procedure PrintSize(TypeName:string; TypeSize:Integer);
+begin
+        write(TypeName, '(', TypeSize, '), ');
+end;
+
 procedure P_info();
 begin
-     writeln('Sizeof:Integer: ', sizeof(Integer));
-     writeln('Sizeof:Int64:   ', sizeof(Int64));
-     writeln('Sizeof:Pointer: ', sizeof(Pointer));
+        write('sizes: ');
+        PrintSize('cell', sizeof(TCell));
+        PrintSize('int', sizeof(Integer));
+        PrintSize('int64', sizeof(Int64));
+        PrintSize('pointer', sizeof(Pointer));
+        writeln('Require sizes cell = pointer');
 end;
 
 procedure P_words();
@@ -65,7 +74,7 @@ begin
      P_word();
      h := P_find(yytext);
      //h64 := Int64(h);
-     Push(Integer(h));
+     Push(TCell(h));
 
 end;
 procedure P_execute();
@@ -91,14 +100,6 @@ begin
              writeln(Uppercase(yytext), ' is primitive');
              exit;
      end;
-
-     {*
-     while hdr^.name^ <> ';' do
-     begin
-       write( hdr^.name^, ' ');
-       hdr := hdr^.link;
-     end;
-     *}
 
      ip := hdr^.hptr;
 again:

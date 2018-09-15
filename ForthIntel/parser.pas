@@ -21,7 +21,12 @@ type
         TWordType = (atomic, colonic, integral);
         TProc = procedure();
 
-        TCell = Integer;
+        {$ifdef CPU32}
+        TCell = Int32;
+        {$else}
+        TCell = Int64;
+        {$endif}
+
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
@@ -73,36 +78,16 @@ function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
 function P_find(name:string): THeaderPtr;
-//function WordCodeptr(d:Integer):Tcell;
 procedure ExecHeader(ptr:THeaderPtr);
-//function DictName(ptr:Integer):string;
-function GetHeap32(pos:Integer):Integer;
 procedure DoCol();
 function ToHeaderPtr(ip:Integer):THeaderPtr;
 procedure HeapifyHeader(hdr:THeaderPtr);
 
 implementation
 
-//const SingleQuote:integer = $27;
-
-
-
-{*
-function DictName(ptr:Integer):string;
-var i:Integer;
-begin
-        DictName := '';
-        for i:= 1 to heap[ptr+5] do DictName += char(heap[ptr+5+i]);
-end;
-*}
-
 {$push}
 //{$warn 5057 off}  // hide warning var not initialized
 {$hints off}   // hide warning var not initialized
-function GetHeap32(pos:Integer):Integer;
-begin
-        Move(heap[pos], GetHeap32, 4);
-end;
 
 function ToHeaderPtr(ip:Integer):THeaderPtr;
 begin
@@ -119,9 +104,7 @@ end;
 {$pop}
 
 function P_find(name:string): THeaderPtr;
-//var hdr:THeader;s:PString;
 begin
-     //d := latest;
      P_find := latest;
      name := UpperCase(name);
      while (P_find <> Nil) and (P_find^.name^ <> name) do P_find := P_find^.link;
