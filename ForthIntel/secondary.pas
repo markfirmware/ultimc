@@ -94,15 +94,19 @@ end;
 
 {* TODO fix case that word is literal, or ip++ is just plain wrong *}
 procedure P_see();
-var hdr:THeaderPtr; ip:Integer;name:String;
+var hdr:THeaderPtr; ip:Integer;name:String; flags:byte; is_imm:byte;
 label again;
 begin
      P_word();
      hdr := P_find(yytext);
 
+     flags := hdr^.flags;
+     is_imm := flags and 1;
      if(hdr^.codeptr <> @Docol) then
      begin
-             writeln(Uppercase(yytext), ' is primitive');
+             write(Uppercase(yytext), ' is primitive ');
+             if (is_imm  = 1) then write('IMMEDIATE ');
+             writeln();
              exit;
      end;
 
@@ -111,8 +115,15 @@ again:
      hdr := ToHeaderPtr(ip);
      name := hdr^.name^;
      write(name, ' ');
+     if name = 'LIT' then
+     begin
+             inc(ip, sizeof(Pointer));
+             write(GetHeapCell(ip), ' ');
+     end;
      inc(ip, sizeof(Pointer));
+
      if name <> ';' then goto again;
+     if (is_imm  = 1) then write('IMMEDIATE ');
 
      //writeln('seeing ', h^.name^);
 end;
@@ -144,7 +155,7 @@ begin
 end;
 
 procedure P_immediate();
-var offset:TCellPtr; flags:byte;
+//var offset:TCellPtr; flags:byte;
 begin
      latest^.flags:= latest^.flags or 1;
      //offset := TCellPtr(latest) + sizeof(TCell);
