@@ -211,6 +211,25 @@ begin
      offset := hptr - backpatch;
      SetHeapCell(backpatch, offset);
 end;
+procedure P_compile_comma();
+begin
+     //writeln('compile, TODO');
+     HeapifyCell(Pop());
+end;
+
+procedure P_backtick();
+begin
+     P_word();
+     //writeln('backtick word:', yytext);
+     HeapPointer(P_find('LIT'));
+     //HeapifyCell(val)
+     //HeapPointer(P_find(''''));
+     HeapPointer(P_find(yytext));
+     HeapPointer(P_find('compile,'));
+      // val :=  GetHeapCell(rstack[rsp]);
+     //rstack[rsp] += sizeof(TCell);
+     //Push(val);
+end;
 
 initialization
 begin
@@ -239,6 +258,8 @@ begin
           AddPrim(0, 'NOT',  @P_not);
           AddPrim(1, 'IF', @P_if);
           AddPrim(1, 'THEN', @P_then);
+          AddPrim(1, '`',@P_backtick);
+          AddPrim(0, 'COMPILE,',@P_compile_comma);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
