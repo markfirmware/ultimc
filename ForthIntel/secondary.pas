@@ -255,6 +255,43 @@ begin
 
 end;
 
+procedure P_string();
+var count:TCell;
+begin
+     P_here();
+     count := 0;
+     inc(yypos);
+     while (yypos <= length(tib)) and (tib[yypos] <> '"') do
+     begin
+       HeapifyByte(Byte(tib[yypos]));
+       inc(yypos);
+       inc(count);
+     end;
+     inc(yypos);
+     Push(count);
+     //writeln('string:<',
+end;
+
+procedure P_type();
+var n, i, pos:TCell;
+begin
+     n := Pop();
+     pos := Pop();
+     for i := 1 to n do write(char(GetHeapByte(pos+i-1)));
+end;
+
+procedure P_cr();
+begin
+     writeln();
+end;
+procedure P_over();
+var x1:TCell;
+begin
+     x1 :=  IntStack[IntStackSize-1];
+     Push(x1);
+        //IntStackSize:Integer;
+end;
+
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -288,6 +325,10 @@ begin
           //AddPrim(0, '[:', @P_def_anon_begin);
           //AddPrim(0, ';]', @P_def_anon_end);
           AddPrim(0, ':NONAME', @P_colon_noname);
+          AddPrim(0, 's"', @P_string);
+          AddPrim(0, 'TYPE', @P_type);
+          AddPrim(0, 'CR', @P_cr);
+          AddPrim(0, 'OVER', @P_over);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));

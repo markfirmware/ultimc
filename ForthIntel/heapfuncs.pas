@@ -34,9 +34,11 @@ var
         heap:array[1..MAX_HEAP] of byte;
         latest:THeaderPtr; // the latest word being defined
 
+procedure HeapifyByte(b:byte);
 procedure HeapifyCell(val:TCell);
 procedure HeapPointer(ptr:Pointer);
 function ToHeaderPtr(ip:Integer):THeaderPtr;
+function GetHeapByte(pos:TCellPtr):byte;
 function GetHeapCell(pos:TCellPtr): TCell;
 function GetHeapPointer(pos:Integer) : Pointer;
 procedure SetHeapCell(ptr:TCellPtr; val:TCell);
