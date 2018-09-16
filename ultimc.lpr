@@ -10,6 +10,7 @@ program ultimc;
 
 uses
   RaspberryPi3,
+  Keymap_UK,
   GlobalConfig,
   GlobalConst,
   GlobalTypes,
@@ -23,11 +24,10 @@ uses
   GimpPpm
   , parser
   , secondary
+  , forthgpio
   //, Glute
   //, GimpPpmGlute
-  //, GpioGlute
   //, EdiGlute}
-  {, GPIO}
 ;
 
 
@@ -52,6 +52,11 @@ begin
   FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
    WindowHandle:=ConsoleWindowCreate(ConsoleDeviceGetDefault,CONSOLE_POSITION_FULL,True);
+
+   //KeymapFindByName('UK');
+   //KeymapSetDefault();
+   //KEYMAP_DEFAULT := 'UK';
+   //Keymap_UKInit();
  ConsoleWindowWriteLn(WindowHandle,'Ultimc started');
 
  {Wait for C: drive to be ready}
