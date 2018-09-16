@@ -58,6 +58,31 @@ DUP + DUP + ;
 As if by magic, double has been embedded within quad.
 
 
+## `CREATE DOES>`
+
+`DOES>` is an immediate word, which I have not successfully implemented yet.
+
+pforth defines 
+	: constant create , 1980 (DOES>) ; 
+where 1980 is the constant word.
+
+gforth defines 
+	: constant (constant) , ; 
+where 
+	: (constant) header reveal decon: cfa, ;
+
+More traditionally is is defined as 
+	: constant create , DOES> @ ;
+
+Also useful is:
+	: VALUE VARIABLE DOES> @ ;
+with typical usage
+	10 VALUE TEN
+
+## `:NONAME`
+
+Implemented 16-Sep-2018. Documented [here](http://lars.nocrew.org/forth2012/core/ColonNONAME.html).
+
 ## See also
 
 * [GPIO](GPIO.md)

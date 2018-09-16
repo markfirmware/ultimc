@@ -32,6 +32,7 @@ type
 var
         hptr:Integer; // pointer into the heap
         heap:array[1..MAX_HEAP] of byte;
+        latest:THeaderPtr; // the latest word being defined
 
 procedure HeapifyCell(val:TCell);
 procedure HeapPointer(ptr:Pointer);

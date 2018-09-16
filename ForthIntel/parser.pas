@@ -42,8 +42,7 @@ var
         IntStack: array[1..200] of TCell;
         IntStackSize:Integer;
 
-        // dictionary items
-        latest:THeaderPtr; // the latest word being defined
+
 
         ip:Integer; // instruction pointer to the heap
 
@@ -72,6 +71,7 @@ function P_find(name:string): THeaderPtr;
 procedure ExecHeader(ptr:THeaderPtr);
 procedure DoCol();
 procedure CreateReadStream(name:string);
+function rpop():Integer;
 
 
 implementation
@@ -93,16 +93,12 @@ procedure CreateHeader(immediate:byte; name:string; proc:TProc);
 var h:THeaderPtr;
 begin
      New(h);
-     //tmp := h;
      h^.link:= latest;
      h^.flags := immediate;
      h^.name:= NewStr(UpperCase(name));
      h^.codeptr := proc;
      h^.hptr := hptr; // top of the heap
-     //HeapifyHeader(hdr);
      latest := h;
-     //writeln('latest', latest);
-
 end;
 
 procedure AddPrim(immediate:byte; name:string; ptr:TProc);

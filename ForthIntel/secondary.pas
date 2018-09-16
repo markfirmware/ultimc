@@ -104,7 +104,6 @@ begin
 end;
 
 
-{* TODO fix case that word is literal, or ip++ is just plain wrong *}
 procedure P_see();
 var hdr:THeaderPtr; ip:Integer;name:String; flags:byte; is_imm:byte;
 label again;
@@ -231,6 +230,31 @@ begin
      //Push(val);
 end;
 
+procedure P_does();
+begin
+     latest^.hptr:= hptr;
+     writeln('does> latest name:', latest^.name^);
+     //rpop();
+end;
+
+procedure P_colon_noname();
+var h:THeaderPtr; s:PString;
+begin
+
+     New(s);
+     s^ := 'UNNAMED';
+     // almost as for CreateHeader
+     New(h);
+     h^.link:= latest;
+     h^.flags := 0 ; //immediate;
+     h^.name:= s;
+     h^.codeptr := @DoCol;
+     h^.hptr := hptr; // top of the heap
+     state := compiling;
+     Push(TCell(h));
+
+end;
+
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -260,6 +284,10 @@ begin
           AddPrim(1, 'THEN', @P_then);
           AddPrim(1, '`',@P_backtick);
           AddPrim(0, 'COMPILE,',@P_compile_comma);
+          AddPrim(1, 'DOES>', @P_does); // TODO this doesn't yet work
+          //AddPrim(0, '[:', @P_def_anon_begin);
+          //AddPrim(0, ';]', @P_def_anon_end);
+          AddPrim(0, ':NONAME', @P_colon_noname);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
