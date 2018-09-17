@@ -1,5 +1,8 @@
 # ultimc
-Me fooling around with Ultibo
+
+A Forth written in FreePascal with the following variants:
+* vanilla - works on any OS, any CPU
+* pi - a bare-metal version for the Raspberry Pi using Ultibo
 
 ## Implementation
 
@@ -61,6 +64,21 @@ As if by magic, double has been embedded within quad.
 ## `CREATE DOES>`
 
 `DOES>` is an immediate word, which I have not successfully implemented yet.
+
+### `CREATE`
+
+gforth implementation: `: create header reveal dovar: cf, ;`
+
+pforth implements it as a primitive 
+
+### `DOES>`
+
+gforth has quite a complex construction involving two nonames.
+
+In pforth : `: lv.finish postpone does> ;`
+
+
+### Words dereived from CREATE-DOES
 
 pforth defines 
 	: constant create , 1980 (DOES>) ; 
