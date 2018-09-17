@@ -101,6 +101,32 @@ with typical usage
 
 Implemented 16-Sep-2018. Documented [here](http://lars.nocrew.org/forth2012/core/ColonNONAME.html).
 
+## `SELF .NAME`
+
+Implemented 17-Sep-2018
+
+`SELF` puts the address of the header of the word currently beign executed onto the stack.
+
+`.NAME` tales the top off the stack, assuming it to be a header value, and prints the name of the word.
+
+Example 1:
+```
+: foo self .name cr ; foo \ prints 'FOO'
+```
+
+Example 2:
+The "self" of a word is the same as the ' of the word
+```
+: bar self ; bar ' bar .s \ outputs identical numbers: 139685488604288 139685488604288
+
+This paves the way for creating a working version of DOES>.
+
+The way 'self' works is that there is an execstack array in parser.pas, with the variable esp pointing to the top of the stack. When ExecHeader(ptr:THeaderPtr) is called, it pushes ptr to the execstack, called the function associated with ptr, then pops off the execstack. So when `SELF` is called, it looks at the penultimate entry of execstack (because the last one is a call to SELF itself, which we're not interested in), and pushes it to the stack.
+
+`.NAME` then just pops the value off as a header, and gets its name from there.
+
+
+
 ## See also
 
 * [GPIO](GPIO.md)

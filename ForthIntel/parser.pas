@@ -48,9 +48,14 @@ var
 
         {* this points to the data on the heap of the word. Very magical! *}
         wptr:Integer;
+        calling_ip:Integer;
+        //colon_hdr:THeaderPtr; // the header of the current word being defined
 
         rstack:array[1..200] of TCell; // return stack
         rsp:Integer; // return stack pointer
+
+        execstack:array[1..200] of THeaderPtr;
+        esp:Integer; // top of call stack
 
         bye:boolean; // time for dinner
 
@@ -60,6 +65,7 @@ var
 
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
+procedure ExecHeader(ptr:THeaderPtr);
 procedure MainRepl();
 procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
@@ -68,7 +74,7 @@ function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
 function P_find(name:string): THeaderPtr;
-procedure ExecHeader(ptr:THeaderPtr);
+//procedure ExecHeader(ptr:THeaderPtr);
 procedure DoCol();
 procedure CreateReadStream(name:string);
 function rpop():Integer;
@@ -85,8 +91,10 @@ begin
      if(P_find = Nil) then Raise exception.create(name + ' unfound');
 end;
 
-
-
+procedure HeapifyWord(name:string);
+begin
+     HeapPointer(P_find(name));
+end;
 
 
 procedure CreateHeader(immediate:byte; name:string; proc:TProc);
@@ -132,6 +140,17 @@ begin
 
 
 end;
+procedure PushExecStack(h:THeaderPtr);
+begin
+     inc(esp);
+     execstack[esp] := h;
+end;
+
+procedure PopExecStack();
+begin
+     inc(esp, -1);
+end;
+
 procedure P_comma();
 begin
      //val := Pop();
@@ -145,14 +164,7 @@ begin
 end;
 
 procedure P_lrb_create_rrb();
-//var val:Tcell; hdr:THeaderPtr;
 begin
-//ip := wptr;
-   //hdr := ToHeaderPtr(wptr);
-   //writeln('(create):', TCell(hdr));
-   //hdr^.hptr;
-
-     //val :=  GetHeapCell(hdr);
      Push(TCell(wptr));
 end;
 
@@ -161,6 +173,8 @@ begin
      P_word(); // read the name of the word being defined
      //writeln(' word being created is:', yytext);
      CreateHeader(0, yytext, @P_lrb_create_rrb); // it assumes its not immediate
+     HeapifyWord('BRANCH');
+     HeapifyCell(sizeof(TCell));
 end;
 
 procedure rpush(i:Integer);
@@ -184,20 +198,41 @@ begin
      HeapPointer(P_find(';'));
      state := interpreting;
 end;
+
+procedure ExecHeader(ptr:THeaderPtr);
+var ptr1:TProc;
+begin
+     PushExecStack(ptr);
+     //writeln('Executing stack depth:', csp, ' ', ptr^.name^);
+
+
+     ptr1 := TProc(ptr^.codeptr);
+     wptr := ptr^.hptr;
+     ptr1();
+     PopExecStack();
+end;
+
 procedure DoCol(); // the inner interpreter
-//var ip:TCell;
-label again;
+//var ip0:TCell;
+label again, finis;
 var hdr:THeaderPtr;
 begin
    ip := wptr;
 again:
    hdr := ToHeaderPtr(ip);
-   if (hdr^.codeptr = @P_semicolon) or (hdr^.codeptr = @P_exit) then exit;
+   if (hdr^.codeptr = @P_semicolon) or (hdr^.codeptr = @P_exit) then goto finis;
+
+
+
    rpush(ip + sizeof(Pointer));
    ExecHeader(hdr);
    ip := rpop();
+
    //inc(ip, sizeof(Pointer));
    goto again;
+
+finis:
+
 end;
 
 
@@ -355,13 +390,6 @@ begin
         end;
 end;
 
-procedure ExecHeader(ptr:THeaderPtr);
-var ptr1:TProc;
-begin
-        ptr1 := TProc(ptr^.codeptr);
-        wptr := ptr^.hptr;
-        ptr1();
-end;
 
 function mediate(h:THeaderPtr):boolean; // opposite of immediate
 //var flags:byte;
@@ -501,6 +529,7 @@ begin
 
         state := interpreting;
         rsp := 0;
+        esp := 0;
         bye := false;
         fpin := Nil;
         //heap1 := malloc(10000);

@@ -230,12 +230,6 @@ begin
      //Push(val);
 end;
 
-procedure P_does();
-begin
-     latest^.hptr:= hptr;
-     writeln('does> latest name:', latest^.name^);
-     //rpop();
-end;
 
 procedure P_colon_noname();
 var h:THeaderPtr; s:PString;
@@ -292,6 +286,37 @@ begin
         //IntStackSize:Integer;
 end;
 
+procedure P_self();
+var hdr:THeaderPtr;
+begin
+     //hdr := THeaderPtr(heap[rstack[rsp]]);
+     //hdr := THeaderPtr(heap[wptr]);
+     //hdr := ToHeaderPtr(wptr);
+     //hdr := ToHeaderPtr(rstack[rsp-1] - sizeof(Pointer));
+     //hdr := ToHeaderPtr(calling_ip);
+
+     hdr := execstack[esp-1];
+     Push(TCell(hdr));
+     //writeln('SELF:', csp, ' ', hdr^.name^);
+     //Push(hdr);
+     //Push(wptr);
+end;
+procedure P_dot_name();
+var h:TheaderPtr;
+begin
+     h := THeaderPtr(Pop());
+     write(h^.name^);
+end;
+
+procedure P_does();
+begin
+     //latest^.hptr:= hptr;
+     //writeln('does> latest name:', latest^.name^);
+     //rpop();
+     writeln('does name:');
+     P_self();
+     P_dot_name();
+end;
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -321,7 +346,7 @@ begin
           AddPrim(1, 'THEN', @P_then);
           AddPrim(1, '`',@P_backtick);
           AddPrim(0, 'COMPILE,',@P_compile_comma);
-          AddPrim(1, 'DOES>', @P_does); // TODO this doesn't yet work
+          AddPrim(0, 'DOES>', @P_does); // TODO this doesn't yet work
           //AddPrim(0, '[:', @P_def_anon_begin);
           //AddPrim(0, ';]', @P_def_anon_end);
           AddPrim(0, ':NONAME', @P_colon_noname);
@@ -329,6 +354,8 @@ begin
           AddPrim(0, 'TYPE', @P_type);
           AddPrim(0, 'CR', @P_cr);
           AddPrim(0, 'OVER', @P_over);
+          AddPrim(0, 'SELF', @P_self);
+          AddPrim(0, '.NAME', @P_dot_name);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
