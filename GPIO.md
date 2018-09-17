@@ -29,8 +29,9 @@ GND      39 :: 40   GPIO21
 Hook up an LED and resistor to GND (pin 6) and GPIO14 (pin 8).
 Issue the following commands from Glute:
 ```
-gfs 14 1
-gos 14 0
+14 1 gfs \ set up pin 14 for output
+14 1 gos \ turn the LED on
+14 0 gos \ turn the LED off
 ```
 
 `gfs` calls `SysGPIOFunctionSelect(pin, mode)`. Use `mode=0` for input,

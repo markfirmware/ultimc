@@ -10,6 +10,7 @@ program ultimc;
 
 uses
   RaspberryPi3,
+  Keymap,
   Keymap_UK,
   GlobalConfig,
   GlobalConst,
@@ -63,6 +64,8 @@ begin
  ConsoleWindowWrite(WindowHandle, 'Mounting drive...');
  while not DirectoryExists('C:\') do sleep(1000); // 1 second
  ConsoleWindowWriteLn(WindowHandle,'OK');
+
+ KeymapSetDefault(KeymapFindByName('UK'));
 
  using_raspberry := true; // needed to fix readln(0 wierdness
  MainRepl();
