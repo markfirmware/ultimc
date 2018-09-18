@@ -5,3 +5,4 @@
 : CELL+		cell + ;
 : 2@		dup cell+ @ swap @ ;
 : 2!		swap over ! cell+ ! ;
+: CONSTANT	<BUILDS , DOES> @ ;

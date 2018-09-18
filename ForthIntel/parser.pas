@@ -65,7 +65,9 @@ var
 
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
+procedure CreateHeader(immediate:byte; name:string; proc:TProc);
 procedure ExecHeader(ptr:THeaderPtr);
+procedure HeapifyWord(name:string);
 procedure MainRepl();
 procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
@@ -78,6 +80,7 @@ function P_find(name:string): THeaderPtr;
 procedure DoCol();
 procedure CreateReadStream(name:string);
 function rpop():Integer;
+procedure P_create();
 
 
 implementation
@@ -173,8 +176,8 @@ begin
      P_word(); // read the name of the word being defined
      //writeln(' word being created is:', yytext);
      CreateHeader(0, yytext, @P_lrb_create_rrb); // it assumes its not immediate
-     HeapifyWord('BRANCH');
-     HeapifyCell(sizeof(TCell));
+     //HeapifyWord('BRANCH');
+     //HeapifyCell(sizeof(TCell));
 end;
 
 procedure rpush(i:Integer);
@@ -403,10 +406,8 @@ procedure EvalWord(name:string);
 var h:THeaderPtr;
 begin
         h := P_find(name);
-        //ptr := Pointer(WordCodeptr(header));
         if (state = compiling) and mediate(h) then
         begin
-                //writeln('Compiling ', name);
                 HeapPointer(h);
         end
         else
@@ -432,10 +433,7 @@ begin
 
      // compiling
      EvalWord('LIT');
-     //CreateHeader(0, 'LIT', @P_lit);
      HeapifyCell(val);
-     //writeln('rsp-top:', rstack[rsp]);
-     //writeln('EvalInteger value:', val);
 end;
 procedure EvalToken(yytype:TTokenType);
 //var ptr:TGluteProc;
@@ -453,16 +451,19 @@ var yystype:TTokenType;
 begin
      yystype := yylex();
      EvalToken(yystype);
-//     heap[heaptop] := dict;
-  //   heaptop := heaptop + 1;
 end;
 
 procedure P_branch();
 var offset:TCell;
 begin
      offset := GetHeapCell(rstack[rsp]);
-     //writeln('branch offset:', offset);
      rstack[rsp] += offset;
+end;
+procedure P_abranch();
+var offset:TCell;
+begin
+     offset := GetHeapCell(rstack[rsp]);
+     rstack[rsp] := offset;
 end;
 procedure P_0branch();
 var offset:TCell;
@@ -470,7 +471,6 @@ begin
      offset := GetHeapCell(rstack[rsp]);
      //writeln('branch offset:', offset);
      if Pop() = 0 then rstack[rsp] += offset else rstack[rsp] += sizeof(TCell);
-     //rstack[rsp] += sizeof(TCell);
 end;
 
 procedure P_backslash();
@@ -538,6 +538,7 @@ begin
 
         AddPrim(0, 'BRANCH', @P_branch);
         AddPrim(0, '0BRANCH', @P_0branch);
+        AddPrim(0, 'ABRANCH', @P_abranch);
         AddPrim(0, ':', @P_colon);
         AddPrim(1, ';', @P_semicolon);
         AddPrim(0, 'CREATE', @P_create);

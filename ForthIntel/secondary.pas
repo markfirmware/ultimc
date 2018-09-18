@@ -126,7 +126,7 @@ again:
      hdr := ToHeaderPtr(ip);
      name := hdr^.name^;
      write(name, ' ');
-     if (name = 'LIT') or (name = '0BRANCH') or (name = 'BRANCH') then
+     if (name = 'LIT') or (name = '0BRANCH') or (name = 'BRANCH') or (name = 'ABRANCH') then
      begin
              inc(ip, sizeof(Pointer));
              write(GetHeapCell(ip), ' ');
@@ -219,15 +219,9 @@ end;
 procedure P_backtick();
 begin
      P_word();
-     //writeln('backtick word:', yytext);
      HeapPointer(P_find('LIT'));
-     //HeapifyCell(val)
-     //HeapPointer(P_find(''''));
      HeapPointer(P_find(yytext));
      HeapPointer(P_find('compile,'));
-      // val :=  GetHeapCell(rstack[rsp]);
-     //rstack[rsp] += sizeof(TCell);
-     //Push(val);
 end;
 
 
@@ -289,17 +283,8 @@ end;
 procedure P_self();
 var hdr:THeaderPtr;
 begin
-     //hdr := THeaderPtr(heap[rstack[rsp]]);
-     //hdr := THeaderPtr(heap[wptr]);
-     //hdr := ToHeaderPtr(wptr);
-     //hdr := ToHeaderPtr(rstack[rsp-1] - sizeof(Pointer));
-     //hdr := ToHeaderPtr(calling_ip);
-
      hdr := execstack[esp-1];
      Push(TCell(hdr));
-     //writeln('SELF:', csp, ' ', hdr^.name^);
-     //Push(hdr);
-     //Push(wptr);
 end;
 procedure P_dot_name();
 var h:TheaderPtr;
@@ -308,15 +293,89 @@ begin
      write(h^.name^);
 end;
 
-procedure P_does();
+procedure P_literal();
 begin
-     //latest^.hptr:= hptr;
-     //writeln('does> latest name:', latest^.name^);
-     //rpop();
-     writeln('does name:');
-     P_self();
-     P_dot_name();
+     HeapifyWord('LIT');
+     HeapifyCell(Pop());
 end;
+
+procedure P_estack();
+var hdr:THeaderPtr;
+begin
+     hdr := execstack[esp-Pop()];
+     Push(TCell(hdr));
+end;
+
+procedure P_to_body();
+var hdr:THeaderPtr; offset:TCell;
+begin
+     hdr := THeaderPtr(Pop());
+     offset := hdr^.hptr;
+     Push(offset);
+
+end;
+
+procedure P_bra_does();
+var branch_pos, loc_pos, offset, does_loc: Tcell; prior, hdr:TheaderPtr;
+begin
+
+     does_loc := Pop();
+     {* prove that cell before the offset is an exit statement *}
+     prior :=  THeaderPtr(GetHeapCell(does_loc - sizeof(TCell)));
+     assert(prior^.name^ = 'EXIT');
+
+     branch_pos := latest^.hptr + 3*sizeof(TCell);
+     SetHeapCell(branch_pos, does_loc);
+
+     loc_pos := latest^.hptr + sizeof(TCell);
+     offset := loc_pos + 4*sizeof(TCell); // point to just after the ';'
+     SetHeapCell(loc_pos, offset);
+
+end;
+
+procedure EmbedLiteral(val:TCell);
+begin
+     HeapifyWord('LIT');
+     HeapifyCell(val);
+end;
+
+
+procedure P_does();
+var branch_pos: Tcell; hdr:TheaderPtr;
+begin
+     EmbedLiteral(hptr + 4* sizeof(TCell)); // point to after the embedded exit
+     HeapifyWord('(DOES>)');
+     HeapifyWord('EXIT');
+end;
+procedure P_builds();
+begin
+     P_word(); // read the name of the word being defined
+     CreateHeader(0, yytext, @Docol);
+     EmbedLiteral(777);
+     HeapifyWord('ABRANCH');
+     HeapifyCell(888);
+     HeapifyWord(';');
+     //writeln('builds created docol:', yytext);
+end;
+
+procedure P_l_oto_r();
+var newval, pos:TCell;
+begin
+     pos := rstack[rsp] + sizeof(TCell);
+     newval :=  GetHeapCell(pos) -1;
+     if newval < 0 then newval := 0;
+     SetHeapCell(pos, newval);
+     //if GetHeapCell(pos) = 1 then SetHeapCell(pos, 0);
+     //writeln(' oto value is:', pos, ' ', GetHeapCell(pos));
+end;
+
+procedure P_oto();
+begin
+     //writeln('oto info:', hptr);
+     HeapifyWord('(OTO)');
+     EmbedLiteral(2);
+end;
+
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -346,7 +405,10 @@ begin
           AddPrim(1, 'THEN', @P_then);
           AddPrim(1, '`',@P_backtick);
           AddPrim(0, 'COMPILE,',@P_compile_comma);
-          AddPrim(0, 'DOES>', @P_does); // TODO this doesn't yet work
+          AddPrim(1, 'DOES>', @P_does); // TODO this doesn't yet work
+          AddPrim(0, '<BUILDS', @P_builds);
+          AddPrim(0, '(DOES>)', @P_bra_does);
+
           //AddPrim(0, '[:', @P_def_anon_begin);
           //AddPrim(0, ';]', @P_def_anon_end);
           AddPrim(0, ':NONAME', @P_colon_noname);
@@ -356,6 +418,11 @@ begin
           AddPrim(0, 'OVER', @P_over);
           AddPrim(0, 'SELF', @P_self);
           AddPrim(0, '.NAME', @P_dot_name);
+          AddPrim(0, 'ESTACK', @P_estack);
+          AddPrim(1, 'LITERAL', @P_literal);
+          AddPrim(0, '>BODY', @P_to_body);
+          AddPrim(1, 'OTO', @P_oto);
+          AddPrim(0, '(OTO)', @P_l_oto_r);
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));

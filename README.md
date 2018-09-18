@@ -65,37 +65,51 @@ As if by magic, double has been embedded within quad.
 
 `DOES>` is an immediate word, which I have not successfully implemented yet.
 
-### `CREATE`
+This Forth uses the Pre ANS standard. When you use `DOES>` you should use `<BUILDS`. The general rule is that wherever you use `DOES>`, you must also use `<BUILDS` instead of `CREATE`. So a typical definition of `CONSTANT` is: `: constant create , DOES> @ ;`
 
-gforth implementation: `: create header reveal dovar: cf, ;`
+In this Forth, it is defined as:
+```
+: CONSTANT <BUILDS , DOES> @ ;
+```
 
-pforth implements it as a primitive 
+`DOES>` was successfully implemented on 18-Sep-2018.
 
-### `DOES>`
+### Implementation notes
 
-gforth has quite a complex construction involving two nonames.
+`DOES>` is perhaps the most tricky feature to implement. Here's what atlast Forth has to say about the matter:
 
-In pforth : `: lv.finish postpone does> ;`
+> O.K., we were compiling our way through this definition and we've
+       encountered the Dreaded and Dastardly Does.  Here's what we do
+       about it.  The problem is that when we execute the word, we
+       want to push its address on the stack and call the code for the
+       DOES> clause by diverting the IP to that address.  But...how
+       are we to know where the DOES> clause goes without adding a
+       field to every word in the system just to remember it.  Recall
+       that since this system is portable we can't cop-out through
+       machine code.  Further, we can't compile something into the
+       word because the defining code may have already allocated heap
+       for the word's body.  Yukkkk.  Oh well, how about this?  Let's
+       copy any and all heap allocated for the word down one stackitem
+       and then jam the DOES> code address BEFORE the link field in
+       the word we're defining.
 
 
-### Words dereived from CREATE-DOES
+My solution to the problem is to make use of the old-fashioned `<BUILDS` word. `<BUILDS` is a compiled word, `DOES>` is an immediate word. So how does my system work?
 
-pforth defines 
-	: constant create , 1980 (DOES>) ; 
-where 1980 is the constant word.
+When you call `<BUILDS`, it creates a new word with a `DOCOL` action, and then extends that word by adding a literal 777, and `ABRANCH` jumpt to address 888, and finally it added a `;`. The 777 and 888 are just placeholder values. The 777 needs to be replaced with an address which is equivalent to what CREATE does. This 777 points just beyond the `;` address. 
 
-gforth defines 
-	: constant (constant) , ; 
-where 
-	: (constant) header reveal decon: cfa, ;
+The `DOES>` is an immediate word that marks out the continuation of the word, a `(DOES>)`, which performs run-time stuff, and `EXIT`, which prevents the post-DOES code from running.
 
-More traditionally is is defined as 
-	: constant create , DOES> @ ;
+When `(DOES>)` is called, it overwrites the 777 with the address beyond the `;`, and replaces the 888 with the top of the stack shifted to the post-EXIT cell.
 
-Also useful is:
-	: VALUE VARIABLE DOES> @ ;
-with typical usage
-	10 VALUE TEN
+Here's how it works ...
+
+Define `CONSTANT` as shown previously: ` constant <BUILDS , DOES> a ;`. If you `see constant`, you'll get output something like this: `<BUILDS , LIT 297 (DOES>) EXIT @ ;`. That `LIT 297` points to the cell where the `@` is. 
+
+Let's a define a constant: `10 constant foo`. And `see foo`: `LIT 353 ABRANCH 297 ;` The `LIT 353` is the cell just after the `;`. The `ABRANCH` is an unconditional branch. See that address of 297 again?
+
+Now run foo: `foo .`, which prints 10, as expected. 
+
 
 ## `:NONAME`
 
