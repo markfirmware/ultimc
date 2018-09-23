@@ -31,7 +31,7 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="ultimc.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -50,6 +50,10 @@
         <Filename Value="ForthIntel/parser.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="armall.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -79,11 +83,6 @@
       </Debugging>
       <LinkSmart Value="True"/>
     </Linking>
-    <Other>
-      <OtherDefines Count="1">
-        <Define0 Value="Ultimc"/>
-      </OtherDefines>
-    </Other>
   </CompilerOptions>
   <Debugging>
     <Exceptions Count="3">
