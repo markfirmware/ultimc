@@ -10,7 +10,7 @@
       </Flags>
       <SessionStorage Value="InProjectDir"/>
       <MainUnit Value="0"/>
-      <Title Value="ultimc"/>
+      <Title Value="fipq"/>
       <UseAppBundle Value="False"/>
       <ResourceType Value="res"/>
     </General>
@@ -31,39 +31,29 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="6">
+    <Units Count="4">
       <Unit0>
-        <Filename Value="ultimc.lpr"/>
+        <Filename Value="fipq.lpr"/>
         <IsPartOfProject Value="True"/>
       </Unit0>
       <Unit1>
-        <Filename Value="gimpppmglute.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="GimpPpmGlute"/>
-      </Unit1>
-      <Unit2>
-        <Filename Value="gpioglute.pas"/>
-        <IsPartOfProject Value="True"/>
-        <UnitName Value="GpioGlute"/>
-      </Unit2>
-      <Unit3>
-        <Filename Value="ForthIntel/parser.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit3>
-      <Unit4>
         <Filename Value="armall.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit4>
-      <Unit5>
-        <Filename Value="forthgpio.pas"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="ForthIntel/parser.pas"/>
         <IsPartOfProject Value="True"/>
-      </Unit5>
+      </Unit2>
+      <Unit3>
+        <Filename Value="ForthIntel/secondary.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
     <Version Value="11"/>
     <Target>
-      <Filename Value="ultimc"/>
+      <Filename Value="fipq"/>
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
@@ -73,7 +63,7 @@
     <CodeGeneration>
       <SmartLinkUnit Value="True"/>
       <TargetProcessor Value="ARMV7A"/>
-      <TargetController Value="RPI3B"/>
+      <TargetController Value="QEMUVPB"/>
       <TargetCPU Value="arm"/>
       <TargetOS Value="ultibo"/>
       <Optimizations>

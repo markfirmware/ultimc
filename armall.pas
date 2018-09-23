@@ -5,27 +5,40 @@ unit armall;
 interface
 
 uses
-  Classes, SysUtils
-  , Console
+  // QEMUVersatilePB ,
+  Console
   , FrameBuffer
   , GlobalConst
   , GlobalTypes
   , Keymap
   , Keymap_UK
+  , Platform
   , Threads
+  , SysUtils
+  , Classes
+  , Ultibo
 
-  , parser
+
   , secondary
+  , parser
   ;
 
 
 var Fb:PFramebufferDevice;
  FramebufferProperties:TFramebufferProperties;
  WindowHandle:TWindowHandle;
+ c_drive_required:Boolean;
 
 procedure  StartArmAll();
 
+procedure OptionallyMountDrive();
+
 implementation
+
+procedure WritelnConsole(msg:string);
+begin
+  ConsoleWindowWriteLn(WindowHandle,msg);
+end;
 
 procedure  StartArmAll();
 begin
@@ -42,26 +55,49 @@ begin
   FrameBufferDeviceGetProperties(Fb,@FrameBufferProperties);
   //SetGimpPpmGluteFb(Fb);
 
-  FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
+  //FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
    WindowHandle:=ConsoleWindowCreate(ConsoleDeviceGetDefault,CONSOLE_POSITION_FULL,True);
+
+    // FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
 
    //KeymapFindByName('UK');
    //KeymapSetDefault();
    //KEYMAP_DEFAULT := 'UK';
    //Keymap_UKInit();
- ConsoleWindowWriteLn(WindowHandle,'Ultimc started');
+ WritelnConsole('Ultimc started');
 
- {Wait for C: drive to be ready}
- ConsoleWindowWrite(WindowHandle, 'Mounting drive...');
- while not DirectoryExists('C:\') do sleep(1000); // 1 second
- ConsoleWindowWriteLn(WindowHandle,'OK');
+ OptionallyMountDrive();
 
  KeymapSetDefault(KeymapFindByName('UK'));
+ //WritelnConsole('Start typing, see what happens.');
 
- using_raspberry := true; // needed to fix readln(0 wierdness
+ using_raspberry := true; // needed to fix readln() wierdness
  MainRepl();
  ThreadHalt(0);
+end;
+
+procedure OptionallyMountDrive();
+begin
+  ConsoleWindowWrite(WindowHandle, 'Mounting drive... ');
+ if not c_drive_required then begin
+   WritelnConsole('SKIPPED');
+   exit;
+ end;
+
+ {Wait for C: drive to be ready}
+
+ while not DirectoryExists('C:\') do
+ begin
+   sleep(1000); // 1 second
+ end;
+ WritelnConsole('OK');
+
+end;
+
+initialization
+begin
+  c_drive_required := True;
 end;
 
 end.
