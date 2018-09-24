@@ -1,6 +1,7 @@
 # ultimc
 
 A Forth written in FreePascal with the following variants:
+* [fipq](fipq/README.md) - a bare-metal generic ARM version using Ultibo and runnable on QEMU
 * vanilla - works on any OS, any CPU
 * pi - a bare-metal version for the Raspberry Pi using Ultibo
 
@@ -132,8 +133,9 @@ Example 2:
 The "self" of a word is the same as the ' of the word
 ```
 : bar self ; bar ' bar .s \ outputs identical numbers: 139685488604288 139685488604288
+```
 
-This paves the way for creating a working version of DOES>.
+This paves the way for creating a working version of DOES>. 
 
 The way 'self' works is that there is an execstack array in parser.pas, with the variable esp pointing to the top of the stack. When ExecHeader(ptr:THeaderPtr) is called, it pushes ptr to the execstack, called the function associated with ptr, then pops off the execstack. So when `SELF` is called, it looks at the penultimate entry of execstack (because the last one is a call to SELF itself, which we're not interested in), and pushes it to the stack.
 
@@ -141,6 +143,7 @@ The way 'self' works is that there is an execstack array in parser.pas, with the
 
 
 
-## See also
+## ARM-specific
 
+* [frambuffer](framebuffer.md)
 * [GPIO](GPIO.md)

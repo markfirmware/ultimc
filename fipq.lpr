@@ -21,7 +21,7 @@ uses
 ;
 
 begin
-  c_drive_required := False;
+  //c_drive_required := False;
   StartArmAll();
 end.
 
