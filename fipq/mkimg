@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+source fipq.env
+
+mkdir -p $IMGDIR
+rm -f $IMG
+fallocate -l 34M $IMG
+mkfs.fat -F 32 $IMG
+

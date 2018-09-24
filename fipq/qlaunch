@@ -1,0 +1,10 @@
+#qemu-system-arm -machine raspi2 pi.img
+#qemu-system-arm -machine versatilepb -cpu cortex-a8 -m 256M pi.img
+KERNEL="-kernel $HOME/repos/ultimc/kernel.bin"
+DRIVE="-hdc pi.img"
+DRIVE="pi.img"
+DRIVE="-drive file=/dev/sdb,format=raw,if=virtio"
+DRIVE="-drive file=pi.img,format=raw"
+DRIVE="-drive file=pi.img,if=sd,format=raw"
+qemu-system-arm -machine versatilepb -cpu cortex-a8 -m 256M $DRIVE $KERNEL
+

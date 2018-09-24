@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+source fipq.env
+sudo mount $IMG $IMGDIR
+
