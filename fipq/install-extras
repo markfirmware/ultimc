@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+source fipq.env
+./qmount
+sudo cp ../ForthIntel/core.4th $IMGDIR
+./qumount
