@@ -165,6 +165,11 @@ begin
      Push(hptr);
 end;
 
+procedure P_allot();
+begin
+     hptr += pop();
+end;
+
 procedure P_immediate();
 //var offset:TCellPtr; flags:byte;
 begin
@@ -183,6 +188,17 @@ begin
      SetHeapCell(pos, val);
 end;
 
+procedure P_latest();
+begin
+     push(TCell(latest));
+end;
+
+procedure P_to_hptr();
+var hdr: THeaderPtr;
+begin
+     hdr := THeaderPtr(Pop());
+     push(hdr^.hptr);
+end;
 procedure P_swap();
 var t1,t2:TCell;
 begin
@@ -197,6 +213,12 @@ begin
      if Pop() = 0 then Push(1) else Push(0);
 end;
 
+
+procedure EmbedLiteral(val:TCell);
+begin
+     HeapifyWord('LIT');
+     HeapifyCell(val);
+end;
 procedure P_if();
 begin
      HeapPointer(P_find('0BRANCH'));
@@ -210,6 +232,18 @@ begin
      offset := hptr - backpatch;
      SetHeapCell(backpatch, offset);
 end;
+procedure P_begin();
+begin
+     //HeapifyWord('BRANCH');
+     P_here();
+     //HeapPointer(Pointer($BAD));
+end;
+procedure P_again();
+begin
+     HeapifyWord('ABRANCH');
+     HeapPointer(Pointer(Pop()));
+end;
+
 procedure P_compile_comma();
 begin
      //writeln('compile, TODO');
@@ -244,11 +278,6 @@ begin
 end;
 
 
-procedure EmbedLiteral(val:TCell);
-begin
-     HeapifyWord('LIT');
-     HeapifyCell(val);
-end;
 
 procedure P_string();
 var count, pos:TCell;
@@ -392,6 +421,47 @@ begin
      EmbedLiteral(2);
 end;
 
+procedure P_fileexists();
+begin
+     Push(TCell(FileExists(MakeString())));
+end;
+
+procedure P_FileOpen();
+var mode:TCell; fname:string;
+begin
+     mode := Pop();
+     fname :=  MakeString();
+     Push(FileOpen(fname, mode));
+end;
+
+procedure P_FileClose();
+begin
+     FileClose(pop());
+end;
+
+procedure P_FileRead();
+var count,buf, handle: TCell; addr:Pointer;
+var i:Integer;
+begin
+     count := pop();
+     buf := pop();
+     handle := pop();
+     addr := buf + @heap -1 ;
+     Push(FileRead(handle, addr^, count));
+
+     //write('contents:');
+     //for i := 1 to 10 do write(char(heap[buf +i-1]));
+     //writeln();
+
+end;
+
+procedure DefConst(val:TCell; str:string);
+begin
+     push(val);
+     str := 'constant ' + str;
+     EvalString(str);
+end;
+
 initialization
 begin
           AddPrim(0, '+', @P_plus);
@@ -412,18 +482,26 @@ begin
           AddPrim(0, 'CLEARSTACK', @P_clearstack);
           AddPrim(0, 'INCLUDE', @P_include);
           AddPrim(0, 'HERE', @P_here);
+          AddPrim(0, 'ALLOT', @P_allot);
           AddPrim(0, 'IMMEDIATE', @P_immediate);
           AddPrim(0, '@', @P_at);
           AddPrim(0, '!', @P_exclaim);
+          AddPrim(0, 'LATEST', @P_latest);
+          AddPrim(0, '>HPTR', @P_to_hptr);
           AddPrim(0, 'SWAP', @P_swap);
           AddPrim(0, 'NOT',  @P_not);
           AddPrim(1, 'IF', @P_if);
           AddPrim(1, 'THEN', @P_then);
+          AddPrim(1, 'BEGIN', @P_begin);
+          AddPrim(1, 'AGAIN', @P_again);
           AddPrim(1, '`',@P_backtick);
           AddPrim(0, 'COMPILE,',@P_compile_comma);
-          AddPrim(1, 'DOES>', @P_does); // TODO this doesn't yet work
+          AddPrim(1, 'DOES>', @P_does);
           AddPrim(0, '<BUILDS', @P_builds);
           AddPrim(0, '(DOES>)', @P_bra_does);
+          EvalString(': CONSTANT <BUILDS , DOES> @ ;');
+
+
 
           //AddPrim(0, '[:', @P_def_anon_begin);
           //AddPrim(0, ';]', @P_def_anon_end);
@@ -439,6 +517,14 @@ begin
           AddPrim(0, '>BODY', @P_to_body);
           AddPrim(1, 'OTO', @P_oto);
           AddPrim(0, '(OTO)', @P_l_oto_r);
+
+          AddPrim(0, 'FILEEXISTS', @P_fileexists);
+          AddPrim(0, 'FILEOPEN', @P_FileOpen);
+          AddPrim(0, 'FILECLOSE', @P_FileClose);
+          AddPrim(0, 'FILEREAD', @P_FileRead);
+          DefConst(fmOpenRead, 'r/o');
+          DefConst(fmOpenWrite, 'w/o');
+          DefConst(fmOpenReadWrite, 'r/w');
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));

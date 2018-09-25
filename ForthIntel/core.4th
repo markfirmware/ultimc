@@ -5,7 +5,10 @@
 : CELL+		cell + ;
 : 2@		dup cell+ @ swap @ ;
 : 2!		swap over ! cell+ ! ;
-: CONSTANT	<BUILDS , DOES> @ ;
+\ : CONSTANT	<BUILDS , DOES> @ ;
+
+: !0exit ` 0branch 2 cells , ` exit ; immediate
+: 0exit  ` not ` 0branch 2 cells , ` exit ; immediate
 
 \ testing the framebuffer
 \ variable RGB 

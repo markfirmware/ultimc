@@ -66,9 +66,11 @@ var
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
 procedure CreateHeader(immediate:byte; name:string; proc:TProc);
+procedure EvalString(str:string);
 procedure ExecHeader(ptr:THeaderPtr);
 procedure HeapifyWord(name:string);
 procedure MainRepl();
+function MakeString():string;
 procedure AddPrim(immediate:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
 function Pop(): TCell;
@@ -494,17 +496,30 @@ begin
      if (yypos < length(tib)) and (not bye) then goto again;
 end;
 
-procedure P_eval();
-var len, str,i:Integer;
+function MakeString():string;
+var len, str, i:Integer;
 begin
+     MakeString := '';
      len := pop();
      str := pop();
-     tib := '';
-     for i := 1 to len do tib := tib +  char(heap[str + i - 1]);
+     for i := 1 to len do MakeString += char(heap[str + i - 1]);
+end;
+
+procedure EvalString(str:string);
+begin
+     tib := str;
      yypos := 1;
      ProcessTib();
-
 end;
+
+procedure P_eval();
+begin
+     EvalString(MakeSTring());
+     //tib := MakeString();
+     //yypos := 1;
+     //ProcessTib();
+end;
+
 
 procedure MainRepl();
 //var yytype:TTokenType;
@@ -570,6 +585,8 @@ begin
         AddPrim(1, '\', @P_backslash);
         AddPrim(0, '(CREATE)', @P_lrb_create_rrb);
         AddPrim(0, '$EVAL', @P_eval);
+        //AddPrim(0, 'CONSTANT', @P_constant);
+
         //lookup('create');
 end;
 
