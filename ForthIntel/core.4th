@@ -6,3 +6,11 @@
 : 2@		dup cell+ @ swap @ ;
 : 2!		swap over ! cell+ ! ;
 : CONSTANT	<BUILDS , DOES> @ ;
+
+\ testing the framebuffer
+\ variable RGB 
+\ : RECT	 >rgb16 rgb ! 0 0 500 500 rgb @ fbrect ;
+\ : RED	100  0  0 rect ;
+\ : GREEN	 0 100  0 rect ;
+\ : BLUE	 0  0 100 rect ;
+
