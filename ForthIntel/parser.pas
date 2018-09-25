@@ -486,6 +486,26 @@ begin
 
 end;
 
+procedure ProcessTib();
+label again;
+begin
+     again:
+     yyparse();
+     if (yypos < length(tib)) and (not bye) then goto again;
+end;
+
+procedure P_eval();
+var len, str,i:Integer;
+begin
+     len := pop();
+     str := pop();
+     tib := '';
+     for i := 1 to len do tib := tib +  char(heap[str + i - 1]);
+     yypos := 1;
+     ProcessTib();
+
+end;
+
 procedure MainRepl();
 //var yytype:TTokenType;
 //input:string;
@@ -500,7 +520,7 @@ begin
 
      while true do
      try
-                yyparse();
+                ProcessTib();
                 if bye then exit;
                 if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
      except
@@ -549,6 +569,7 @@ begin
         AddPrim(0, ',', @P_comma);
         AddPrim(1, '\', @P_backslash);
         AddPrim(0, '(CREATE)', @P_lrb_create_rrb);
+        AddPrim(0, '$EVAL', @P_eval);
         //lookup('create');
 end;
 
