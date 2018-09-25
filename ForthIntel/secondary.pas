@@ -243,10 +243,25 @@ begin
 
 end;
 
-procedure P_string();
-var count:TCell;
+
+procedure EmbedLiteral(val:TCell);
 begin
-     P_here();
+     HeapifyWord('LIT');
+     HeapifyCell(val);
+end;
+
+procedure P_string();
+var count, pos:TCell;
+begin
+     if state = compiling then // P_if() else P_here();
+     begin
+             HeapifyWord('ABRANCH');
+             pos := hptr;
+             HeapPointer(Pointer($BAD));
+     end
+     else  P_here();
+
+
      count := 0;
      inc(yypos);
      while (yypos <= length(tib)) and (tib[yypos] <> '"') do
@@ -256,7 +271,14 @@ begin
        inc(count);
      end;
      inc(yypos);
-     Push(count);
+
+     if state = compiling then
+     begin
+             SetHeapCell(pos, hptr);
+             EmbedLiteral(pos+sizeof(TCell));
+             EmbedLiteral(count);
+     end
+     else Push(count);
      //writeln('string:<',
 end;
 
@@ -316,7 +338,7 @@ begin
 end;
 
 procedure P_bra_does();
-var branch_pos, loc_pos, offset, does_loc: Tcell; prior, hdr:TheaderPtr;
+var branch_pos, loc_pos, offset, does_loc: Tcell; prior:TheaderPtr;
 begin
 
      does_loc := Pop();
@@ -333,15 +355,9 @@ begin
 
 end;
 
-procedure EmbedLiteral(val:TCell);
-begin
-     HeapifyWord('LIT');
-     HeapifyCell(val);
-end;
 
 
 procedure P_does();
-var branch_pos: Tcell; hdr:TheaderPtr;
 begin
      EmbedLiteral(hptr + 4* sizeof(TCell)); // point to after the embedded exit
      HeapifyWord('(DOES>)');
@@ -412,7 +428,7 @@ begin
           //AddPrim(0, '[:', @P_def_anon_begin);
           //AddPrim(0, ';]', @P_def_anon_end);
           AddPrim(0, ':NONAME', @P_colon_noname);
-          AddPrim(0, 's"', @P_string);
+          AddPrim(1, 's"', @P_string);
           AddPrim(0, 'TYPE', @P_type);
           AddPrim(0, 'CR', @P_cr);
           AddPrim(0, 'OVER', @P_over);
