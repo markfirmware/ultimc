@@ -14,6 +14,14 @@ uses
 
 implementation
 
+{$push}
+{$hints off}   // hide warning var not initialized
+function PopHeader():THeaderPtr;
+begin
+     PopHeader := THeaderPtr(Pop());
+end;
+{$pop}
+
 procedure P_printstack();
 var
         i:Integer;
@@ -98,9 +106,8 @@ end;
 procedure P_execute();
 var ptr:THeaderPtr;
 begin
-     //writeln('Execute1');
-     ptr := THeaderPtr(Pop());
-     //writeln('Execute:',  ptr^.name^);
+     //ptr := THeaderPtr(Pop());
+     ptr := PopHeader();
      ExecHeader(ptr);
 end;
 
@@ -198,7 +205,8 @@ end;
 procedure P_to_hptr();
 var hdr: THeaderPtr;
 begin
-     hdr := THeaderPtr(Pop());
+     //hdr := THeaderPtr(Pop());
+     hdr := PopHeader();
      push(hdr^.hptr);
 end;
 procedure P_swap();
@@ -344,7 +352,8 @@ end;
 procedure P_dot_name();
 var h:TheaderPtr;
 begin
-     h := THeaderPtr(Pop());
+     //h := THeaderPtr(Pop());
+     h := PopHeader();
      write(h^.name^);
 end;
 
@@ -372,7 +381,8 @@ end;
 procedure P_to_body();
 var hdr:THeaderPtr; offset:TCell;
 begin
-     hdr := THeaderPtr(Pop());
+     //hdr := THeaderPtr(Pop());
+     hdr := PopHeader();
      offset := hdr^.hptr;
      Push(offset);
 

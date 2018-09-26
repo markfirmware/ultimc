@@ -48,7 +48,6 @@ procedure SetHeapCell(ptr:TCellPtr; val:TCell);
 implementation
 
 {$push}
-//{$warn 5057 off}  // hide warning var not initialized
 {$hints off}   // hide warning var not initialized
 function ToHeaderPtr(ip:Integer):THeaderPtr;
 begin
