@@ -350,6 +350,13 @@ begin
      HeapifyCell(Pop());
 end;
 
+
+procedure P_drop();
+begin
+     pop();
+end;
+
+
 procedure P_estack();
 var hdr:THeaderPtr;
 begin
@@ -441,7 +448,7 @@ end;
 
 procedure P_FileRead();
 var count,buf, handle: TCell; addr:Pointer;
-var i:Integer;
+//var i:Integer;
 begin
      count := pop();
      buf := pop();
@@ -514,6 +521,7 @@ begin
           AddPrim(0, '.NAME', @P_dot_name);
           AddPrim(0, 'ESTACK', @P_estack);
           AddPrim(1, 'LITERAL', @P_literal);
+          AddPrim(0, 'DROP', @P_drop);
           AddPrim(0, '>BODY', @P_to_body);
           AddPrim(1, 'OTO', @P_oto);
           AddPrim(0, '(OTO)', @P_l_oto_r);
