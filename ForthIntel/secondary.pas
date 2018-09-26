@@ -251,7 +251,8 @@ end;
 procedure P_again();
 begin
      HeapifyWord('ABRANCH');
-     HeapPointer(Pointer(Pop()));
+     //HeapPointer(Pointer(Pop()));
+     HeapifyCell(Pop());
 end;
 
 procedure P_compile_comma();
