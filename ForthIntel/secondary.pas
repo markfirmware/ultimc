@@ -126,7 +126,7 @@ again:
      hdr := ToHeaderPtr(ip);
      name := hdr^.name^;
      write(name, ' ');
-     if (name = 'LIT') or (name = '0BRANCH') or (name = 'BRANCH') or (name = 'ABRANCH') then
+     if (hdr^.flags and elit) > 0 then
      begin
              inc(ip, sizeof(Pointer));
              write(GetHeapCell(ip), ' ');

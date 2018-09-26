@@ -27,6 +27,7 @@ type
         TTokenType = (Eof, Word, Int);
 
         TState = (compiling, interpreting);
+        const elit = %10 ; // implies that word contains embedded literal
 
 
 var
@@ -71,7 +72,7 @@ procedure ExecHeader(ptr:THeaderPtr);
 procedure HeapifyWord(name:string);
 procedure MainRepl();
 function MakeString():string;
-procedure AddPrim(immediate:byte;name:string; ptr:TProc);
+procedure AddPrim(flags:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
 function Pop(): TCell;
 function yylex() : TTokenType;
@@ -114,9 +115,9 @@ begin
      latest := h;
 end;
 
-procedure AddPrim(immediate:byte; name:string; ptr:TProc);
+procedure AddPrim(flags:byte; name:string; ptr:TProc);
 begin
-     CreateHeader(immediate, name, ptr);
+     CreateHeader(flags, name, ptr);
      //HeapPointer(ptr); // codeptr
 end;
 
@@ -571,16 +572,16 @@ begin
 
         // prefix normal words with 0, immediate words with 1
 
-        AddPrim(0, 'BRANCH', @P_branch);
-        AddPrim(0, '0BRANCH', @P_0branch);
-        AddPrim(0, 'ABRANCH', @P_abranch);
+        AddPrim(elit, 'BRANCH', @P_branch);
+        AddPrim(elit, '0BRANCH', @P_0branch);
+        AddPrim(elit, 'ABRANCH', @P_abranch);
         AddPrim(0, ':', @P_colon);
         AddPrim(1, ';', @P_semicolon);
         AddPrim(0, 'CREATE', @P_create);
         AddPrim(0, 'DOCOL', @docol);
         AddPrim(0, 'BYE', @P_bye);
         AddPrim(0, 'EXIT', @P_exit);
-        AddPrim(0, 'LIT', @P_lit);
+        AddPrim(elit, 'LIT', @P_lit);
         AddPrim(0, ',', @P_comma);
         AddPrim(1, '\', @P_backslash);
         AddPrim(0, '(CREATE)', @P_lrb_create_rrb);
