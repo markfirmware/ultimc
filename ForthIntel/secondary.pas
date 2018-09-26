@@ -395,7 +395,8 @@ begin
 
      does_loc := Pop();
      {* prove that cell before the offset is an exit statement *}
-     prior :=  THeaderPtr(GetHeapCell(does_loc - sizeof(TCell)));
+     //prior :=  THeaderPtr(GetHeapCell(does_loc - sizeof(TCell)));
+     prior :=  ToHeaderPtr(does_loc - sizeof(TCell));
      assert(prior^.name^ = 'EXIT');
 
      branch_pos := latest^.hptr + 3*sizeof(TCell);
