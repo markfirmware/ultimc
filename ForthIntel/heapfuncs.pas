@@ -36,6 +36,7 @@ var
 
 procedure HeapifyByte(b:byte);
 procedure HeapifyCell(val:TCell);
+procedure HeapifyHeader(hdr:THeaderPtr);
 
 procedure HeapPointer(ptr:Pointer);
 function ToHeaderPtr(ip:Integer):THeaderPtr;

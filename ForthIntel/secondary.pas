@@ -91,7 +91,8 @@ begin
      P_word();
      h := P_find(yytext);
      //h64 := Int64(h);
-     Push(TCell(h));
+     //Push(TCell(h));
+     HeapifyHeader(h);
 
 end;
 procedure P_execute();
@@ -190,7 +191,8 @@ end;
 
 procedure P_latest();
 begin
-     push(TCell(latest));
+     //push(TCell(latest));
+     HeapifyHeader(latest);
 end;
 
 procedure P_to_hptr();
@@ -273,7 +275,8 @@ begin
      h^.codeptr := @DoCol;
      h^.hptr := hptr; // top of the heap
      state := compiling;
-     Push(TCell(h));
+     //Push(TCell(h));
+     HeapifyHeader(h);
 
 end;
 
@@ -335,7 +338,8 @@ procedure P_self();
 var hdr:THeaderPtr;
 begin
      hdr := execstack[esp-1];
-     Push(TCell(hdr));
+     //Push(TCell(hdr));
+     HeapifyHeader(hdr);
 end;
 procedure P_dot_name();
 var h:TheaderPtr;
@@ -361,7 +365,8 @@ procedure P_estack();
 var hdr:THeaderPtr;
 begin
      hdr := execstack[esp-Pop()];
-     Push(TCell(hdr));
+     //Push(TCell(hdr));
+     HeapifyHeader(hdr);
 end;
 
 procedure P_to_body();
