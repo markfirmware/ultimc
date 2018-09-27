@@ -2,5 +2,5 @@
 
 source fipq.env
 ./qmount
-sudo cp ../ForthIntel/core.4th $IMGDIR
+#sudo cp ../ForthIntel/core.4th $IMGDIR
 ./qumount

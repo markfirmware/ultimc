@@ -551,6 +551,15 @@ begin
           DefConst(fmOpenWrite, 'w/o');
           DefConst(fmOpenReadWrite, 'r/w');
 
+          EvalString(': VARIABLE      create 0 , ;');
+          EvalString(': CELLS         cell * ; \ n1 -- n2');
+          EvalString(': 2VARIABLE     create 0 , 0 , ;');
+          EvalString(': CELL+         cell + ;');
+          EvalString(': 2@            dup cell+ @ swap @ ;');
+          EvalString(': 2!            swap over ! cell+ ! ;');
+          EvalString(': !0exit ` 0branch 2 cells , ` exit ; immediate');
+          EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
+
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();
