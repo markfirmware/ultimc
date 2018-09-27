@@ -16,3 +16,8 @@ Run `mkimg`. This creates a file containing a VFAT partition for QEMU to use
 ## Running the result
 
 Simple enough: type `qlaunch`.
+
+## Prebuilt image
+
+Is available here: 
+https://drive.google.com/file/d/1akRBnpphRVXvD3KEM4haf60TuW7-arPo/view?usp=sharing
