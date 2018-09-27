@@ -6,18 +6,13 @@ program fipq;
 
 
 uses
-  QEMUVersatilePB
-  , armall // , parser, secondary
-  {*
-  GlobalConfig,
-  GlobalConst,
-  GlobalTypes,
-  Platform,
-  Threads,
-  SysUtils,
-  Classes,
-  Ultibo
-  *}
+    {$ifdef BUILD_MODE_QEMUVPB} QEMUVersatilePB,  {$endif}
+  {$ifdef BUILD_MODE_RPI    } BCM2835, BCM2708, {$endif}
+  {$ifdef BUILD_MODE_RPI2   } BCM2836, BCM2709, {$endif}
+  {$ifdef BUILD_MODE_RPI3   } BCM2837, BCM2710, {$endif}
+  //QEMUVersatilePB
+  armall // , parser, secondary
+
 ;
 
 begin
