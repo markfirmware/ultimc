@@ -29,7 +29,7 @@
             <Filename Value="fipq"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)fpc/source/packages/fv/src"/>
+            <IncludeFiles Value="$(ProjOutDir)"/>
             <OtherUnitFiles Value="ForthIntel"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>

@@ -90,6 +90,8 @@ begin
 end;
 
 procedure OptionallyMountDrive();
+var i:integer;
+label OK;
 begin
   ConsoleWindowWrite(WindowHandle, 'Mounting drive... ');
  if not c_drive_required then begin
@@ -99,10 +101,15 @@ begin
 
  {Wait for C: drive to be ready}
 
- while not DirectoryExists('C:\') do
- begin
-   sleep(1000); // 1 second
+ for i := 1 to 10 do begin
+   if DirectoryExists('C:\') then goto OK;
+   write('.');
+   sleep(1000); // second
  end;
+ WritelnConsole('FAILED');
+ exit();
+
+ OK:
  WritelnConsole('OK');
 
 end;

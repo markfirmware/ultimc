@@ -28,12 +28,12 @@ unit texteditor;
 
 
 {Include the platform.inc file from FreeVision which sets up the standard options}
-{$I platform.inc}
+//{$I platform.inc}
 
 interface
 {Declare some units used by this example.}
 uses
- QEMUVersatilePB, {The QEMUVersatilePB unit gives us all the relevant drivers}
+ //QEMUVersatilePB, {The QEMUVersatilePB unit gives us all the relevant drivers}
  GlobalConfig,
  GlobalConst,
  Platform,
