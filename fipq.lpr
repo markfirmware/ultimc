@@ -11,7 +11,7 @@ uses
   {$ifdef BUILD_MODE_RPI2   } BCM2836, BCM2709, {$endif}
   {$ifdef BUILD_MODE_RPI3   } BCM2837, BCM2710, {$endif}
   //QEMUVersatilePB
-  armall // , parser, secondary
+  armall
 
 ;
 

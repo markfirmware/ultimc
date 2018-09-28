@@ -24,6 +24,8 @@ uses
   , secondary
   , parser
   , heapfuncs
+
+  , texteditor
   ;
 
 
@@ -204,6 +206,7 @@ begin
   AddPrim(0, 'RED', @P_red);
   AddPrim(0, 'GREEN', @P_green);
   AddPrim(0, 'BLUE', @P_blue);
+  AddPrim(0, 'EDITOR', @TextEditorMain);
 end;
 
 end.

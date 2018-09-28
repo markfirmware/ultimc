@@ -29,7 +29,7 @@
             <Filename Value="fipq"/>
           </Target>
           <SearchPaths>
-            <IncludeFiles Value="$(ProjOutDir)"/>
+            <IncludeFiles Value="$(ProjOutDir);$(LazarusDir)fpc/source/packages/fv/src"/>
             <OtherUnitFiles Value="ForthIntel"/>
             <UnitOutputDirectory Value="lib/$(TargetCPU)-$(TargetOS)"/>
           </SearchPaths>
@@ -180,7 +180,7 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="fipq.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -197,6 +197,10 @@
         <Filename Value="ForthIntel/secondary.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="texteditor.pas"/>
+        <IsPartOfProject Value="True"/>
+      </Unit4>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
