@@ -85,6 +85,7 @@ function P_find(name:string): THeaderPtr;
 procedure DoCol();
 procedure CreateReadStream(name:string);
 function rpop():Integer;
+procedure P_backslash();
 procedure P_create();
 
 

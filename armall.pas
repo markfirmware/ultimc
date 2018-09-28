@@ -143,14 +143,23 @@ begin
 end;
 
 procedure P_fbrect();
-var x0, y0, x1, y1, rgb16:LongWord;
+var x0, y0, x1, y1, rgb, rgb1, base:LongWord;
+    r, g, b:integer;
 begin
- rgb16 := pop();
+ rgb := pop();
+ base := $100;
+
+ b :=  percent(base, (rgb mod 100));
+ g :=  percent(base, ((rgb div 100) mod 100));
+ r := percent(base, ((rgb div 10000) mod 100));
+ rgb1 := $FF000000 + (b shl 16) + (g shl 8) + r;
+ //writeln('fbrect rgb: ', r, ' ', g, ' ', b);
+
  y1 := pop();
  x1 := pop();
  y0 := pop();
  x0 := pop();
- FramebufferDeviceFillRect(Fb, x0, y0, x1, y1, rgb16, FRAMEBUFFER_TRANSFER_DMA);
+ FramebufferDeviceFillRect(Fb, x0, y0, x1, y1, rgb1, FRAMEBUFFER_TRANSFER_DMA);
 end;
 
 procedure sqre(color:LongWord);
@@ -214,6 +223,8 @@ begin
   AddPrim(0, 'GREEN', @P_green);
   AddPrim(0, 'BLUE', @P_blue);
   AddPrim(0, 'EDITOR', @TextEditorMain);
+  //EvalString(': # \ ; immediate');
+  AddPrim(1, '#', @P_backslash);
 end;
 
 end.
