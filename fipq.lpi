@@ -51,9 +51,14 @@
             <LinkSmart Value="True"/>
           </Linking>
           <Other>
-            <CustomOptions Value="-dBUILD_MODE_QEMUVPB"/>
-            <OtherDefines Count="1">
+            <ConfigFile>
+              <ConfigFilePath Value="arm.cfg"/>
+            </ConfigFile>
+            <CustomOptions Value="-dBUILD_MODE_QEMUVPB
+-dUSES_ARM"/>
+            <OtherDefines Count="2">
               <Define0 Value="BUILD_MODE_QEMUVPB"/>
+              <Define1 Value="USES_ARM"/>
             </OtherDefines>
           </Other>
         </CompilerOptions>

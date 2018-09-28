@@ -4,6 +4,8 @@ unit armall;
 
 interface
 
+// USES_ARM is defined
+
 uses
   // QEMUVersatilePB ,
   Console
@@ -39,6 +41,12 @@ implementation
 procedure WritelnConsole(msg:string);
 begin
   ConsoleWindowWriteLn(WindowHandle,msg);
+end;
+
+procedure ReadLnConsole(var text:string);
+begin
+ ConsoleWindowReadLn(WindowHandle, text);
+
 end;
 
 procedure  StartArmAll();
@@ -188,6 +196,7 @@ end;
 
 initialization
 begin
+  ReadLinePtr := @ReadLnConsole;
   c_drive_required := True;
   AddPrim(0, 'FBRECT', @P_fbrect);
   AddPrim(0, '>RGB16', @P_to_rgb16);

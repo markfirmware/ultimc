@@ -4,5 +4,6 @@ source fipq.env
 
 DRIVE="-drive file=$IMG,if=sd,format=raw"
 KERNEL="-kernel ../kernel.bin"
+KERNEL="-kernel ../fipq-kernel-qemuvpb.img"
 qemu-system-arm -machine versatilepb -cpu cortex-a8 -m 256M $DRIVE $KERNEL
 

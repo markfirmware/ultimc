@@ -25,6 +25,7 @@ type
 
 
         TTokenType = (Eof, Word, Int);
+        TReadLinePtr = procedure(var text:string);
 
         TState = (compiling, interpreting);
         const elit = %10 ; // implies that word contains embedded literal
@@ -42,6 +43,7 @@ var
 	yytext:string;
         IntStack: array[1..200] of TCell;
         IntStackSize:Integer;
+        ReadLinePtr:TReadLinePtr;
 
 
 
@@ -336,7 +338,11 @@ begin
      {* just using "stdin" *}
      if fpin = Nil then
      begin
-          readln(tib);
+             {$ifdef USES_ARM}
+             ReadLinePtr(tib);
+             {$else}
+             readln(tib);
+             {$endif}
           if using_raspberry then writeln(''); // seems to be a quirk
           exit;
      end;
@@ -569,6 +575,8 @@ begin
         bye := false;
         fpin := Nil;
         //heap1 := malloc(10000);
+
+        //ReadLinePtr := ^ReadLn;
 
         // prefix normal words with 0, immediate words with 1
 
