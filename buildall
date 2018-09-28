@@ -15,13 +15,15 @@ MODES="QEMUVPB RPI RPI2 RPI3"
 function buildmode {
     MODE=$1
     echo $MODE
-    rm -rf lib/ *.elf kernel*.img kernel.bin
+    rm -rf lib/
     WD=$(pwd)
     pushd $LAZDIR >& /dev/null
     ./lazbuild --build-mode=BUILD_MODE_$MODE $WD/$LPINAME.lpi
     popd >& /dev/null
+    mv kernel* $LPINAME-kernel-${MODE,,}.img
 }
 
+rm -rf kernel*.img kernel.bin
 for MODE in $MODES
 do
     buildmode $MODE
