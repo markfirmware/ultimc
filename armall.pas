@@ -27,6 +27,7 @@ uses
 
   , texteditor
   , ultiboapi
+  , forthgpio
   ;
 
 
