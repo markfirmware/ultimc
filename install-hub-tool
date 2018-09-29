@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+
+VERSION=2.5.1
+BASE=hub-linux-amd64-$VERSION
+TGZ=$BASE.tgz
+
+if [ -d hub-tool ]
+then
+    echo already installed
+else
+    wget -q https://github.com/github/hub/releases/download/v$VERSION/$TGZ
+    tar zxf $TGZ
+    rm $TGZ
+    mv $BASE hub-tool
+fi
