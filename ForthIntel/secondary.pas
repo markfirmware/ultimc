@@ -537,6 +537,22 @@ begin
      end;
      CloseFile(f);
 end;
+procedure P_cat();
+var f:File; buf: array[1..2048] of byte; NumRead:SmallInt; i:integer;fname:string;
+begin
+     NumRead := 0; buf[1] := 0; // dummy initialisation
+     fname := MakeString();
+     //writeln('File name is:', fname);
+     AssignFile(f, fname);
+     Reset(f, 1);
+     repeat
+       BlockRead(f, buf, sizeof(buf), NumRead);
+       //writeln('Bytes REad:', NumRead);
+       for i:= 1 to NumRead do write(char(buf[i]));
+     until NumRead = 0;
+     Close(f);
+
+end;
 
 procedure P_cl();
 label again;
@@ -656,6 +672,8 @@ begin
           AddPrim(0, 'sb', @P_sb);
           AddPrim(0, 'xl', @P_xl);
 
+          AddPrim(0, 'cat', @P_cat);
+
           EvalString(': VARIABLE      create 0 , ;');
           EvalString(': CELLS         cell * ; \ n1 -- n2');
           EvalString(': 2VARIABLE     create 0 , 0 , ;');
@@ -664,6 +682,8 @@ begin
           EvalString(': 2!            swap over ! cell+ ! ;');
           EvalString(': !0exit ` 0branch 2 cells , ` exit ; immediate');
           EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
+
+
 
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
