@@ -1,4 +1,4 @@
-# prototype-microbit-as-ultibo-peripheral
+# ultimc - forth on ultibo
 
 # Requires:
 * a micro:bit computer and a usb cable
