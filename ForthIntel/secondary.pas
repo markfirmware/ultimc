@@ -23,8 +23,8 @@ var
 
 
 implementation
-uses
- ultiboapi;
+//uses
+ //ultiboapi;
 
 {$push}
 {$hints off}   // hide warning var not initialized
@@ -685,7 +685,7 @@ begin
           EvalString(': !0exit ` 0branch 2 cells , ` exit ; immediate');
           EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
 
-          UltiboApiAddPrimitives;
+          //UltiboApiAddPrimitives;
 
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();

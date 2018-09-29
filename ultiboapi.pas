@@ -6,7 +6,8 @@ procedure UltiboApiAddPrimitives;
 implementation
 uses
  parser,
- globaltypes,globalconst,globalconfig,console,logging,serial;
+ //globaltypes,globalconst,
+ globalconfig,console,logging,serial;
 
 function IntToBool(X:Integer):Boolean;
 begin

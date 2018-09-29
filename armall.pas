@@ -26,6 +26,7 @@ uses
   , heapfuncs
 
   , texteditor
+  , ultiboapi
   ;
 
 
@@ -225,6 +226,8 @@ begin
   AddPrim(0, 'EDITOR', @TextEditorMain);
   //EvalString(': # \ ; immediate');
   AddPrim(1, '#', @P_backslash);
+
+  UltiboApiAddPrimitives();
 end;
 
 end.
