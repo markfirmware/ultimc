@@ -19,7 +19,7 @@ uses
   , SysUtils
   , Classes
   , Ultibo
-
+  , DWCOTG,FileSystem,MMC,FATFS,Keyboard
 
   , secondary
   , parser

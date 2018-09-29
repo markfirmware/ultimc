@@ -7,7 +7,7 @@ implementation
 uses
  parser,
  //globaltypes,globalconst,
- globalconfig,console,logging,serial;
+ globalconfig,console,logging,serial,platform,ultibo;
 
 function IntToBool(X:Integer):Boolean;
 begin
