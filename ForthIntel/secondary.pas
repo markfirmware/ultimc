@@ -687,8 +687,6 @@ begin
 
           UltiboApiAddPrimitives;
 
-
-
           //writeln('Init:@PrintStack:',  Int64(@P_printstack));
           //P_words();
           //P_find('CREATE');
