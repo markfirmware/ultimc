@@ -9,3 +9,6 @@ backup/
 kernel.bin
 kernel7.img
 lib/
+release/
+hub-*/
+firmware/

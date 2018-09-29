@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -e # exit script on any error
+
+LPR=fipq
+RELEASE_COUNTER=1
+RELEASE_VERSION=v$(date +%Y.%m.%d.%H%M)n$RELEASE_COUNTER
+REPO=ultimc
+ZIPFILE=$REPO-$RELEASE_VERSION.zip
+PATH=$HOME/hub-linux-arm-2.3.0-pre10/bin:$PATH
+
+mkdir -p release
+rm -rf release/*
+
+./buildall
+
+if [ -d firmware ]
+then
+    echo
+else
+    mkdir -p firmware/boot
+    pushd firmware/boot
+    wget https://raw.githubusercontent.com/raspberrypi/firmware/master/boot/LICENCE.broadcom
+    wget https://raw.githubusercontent.com/raspberrypi/firmware/master/boot/start.elf
+    wget https://raw.githubusercontent.com/raspberrypi/firmware/master/boot/fixup.dat
+    wget https://raw.githubusercontent.com/raspberrypi/firmware/master/boot/bootcode.bin
+    popd
+fi
+
+cp -a *.img release/
+cp -a ForthIntel/core.4th release/
+cp -a $LPR-config.txt $LPR-cmdline.txt release/
+cp -a release/$LPR-config.txt release/config.txt
+echo "$REPO $RELEASE_VERSION" >> release/release-message.md
+echo >> release/release-message.md
+cat release-message.md >> release/release-message.md
+cp -a firmware/boot/bootcode.bin firmware/boot/start.elf firmware/boot/fixup.dat release/
+cd release
+zip $ZIPFILE *
+ls -lt $ZIPFILE
+cd ..
+
+if [ -d hub-tool ]
+then
+    echo
+else
+    HUB_TOOL_VERSION=2.5.1
+    HUB_TOOL_BASE=hub-linux-amd64-$HUB_TOOL_VERSION
+    HUB_TOOL_TGZ=$HUB_TOOL_BASE.tgz
+    wget -q https://github.com/github/hub/releases/download/v$HUB_TOOL_VERSION/$HUB_TOOL_TGZ
+    tar zxf $HUB_TOOL_TGZ
+    rm $HUB_TOOL_TGZ
+    mv $HUB_TOOL_BASE hub-tool
+fi
+
+./hub-tool/bin/hub release create -d -p -F release/release-message.md -a release/$ZIPFILE $RELEASE_VERSION
