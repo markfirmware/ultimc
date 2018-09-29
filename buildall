@@ -23,7 +23,7 @@ function buildmode {
     mv kernel* $LPINAME-kernel-${MODE,,}.img
 }
 
-rm -rf kernel*.img kernel.bin
+rm -rf *kernel*.img kernel.bin
 for MODE in $MODES
 do
     buildmode $MODE
