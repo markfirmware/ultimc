@@ -1,7 +1,19 @@
 .AUTHOR "Mark Carter
 .TITLE "FIP - Forth In Pascal"
 .PRINTSTYLE TYPESET
+\#.PRINTSTYLE TYPEWRITE
 \# .PAGE 6i 9i .75i .75i .75i .75i
+
+.de FCODE
+.QUOTE
+.CODE
+..
+
+.de FCODEX
+.CODE OFF
+.QUOTE OFF
+..
+
 .START
 .HEADING 1 "An unexpected party"
 .PP
@@ -9,4 +21,12 @@ This is just a test document
 
 Is this another paragraph?
 
+\#.QUOTE
+.FCODE 
+1234
+Example code
+.FCODEX
+\#.CODE OFF
+\#.QUOTE OFF
 
+And now back to normal.
