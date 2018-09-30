@@ -1,16 +1,16 @@
 # ultimc
 
-A Forth written in FreePascal with the following variants:
-* [fipq](fipq/README.md) - a bare-metal generic ARM version using Ultibo and runnable on QEMU
-* vanilla - works on any OS, any CPU
-* pi - a bare-metal version for the Raspberry Pi using Ultibo
+A Forth written in FreePascal that works on all Operating Systems, and includes a bare-metal ARM version (QEMU, and most Raspberry Pi's) comilable under Ultibo (see [fipq](fipq/README.md))
 
+## boot.4th
 
+The file `boot.4th` allows user-customisation of how the Forth starts. If you are using a UK keyboard under Ultibo, then you should include the line `uk-kbd` in there.
 
 ## ARM-specific
 
 * [frambuffer](framebuffer.md)
 * [GPIO](GPIO.md)
+* serial port is being worked on by markfirmware. More details to follow.
 
 ## See also
 

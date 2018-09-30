@@ -545,18 +545,22 @@ begin
      //ProcessTib();
 end;
 
+procedure TryLoading(path:string);
+begin
+     write('Loading ', path, '...');
+     try
+           CreateReadStream(path);
+           writeln('OK');
+     except on E:Exception do
+     	    writeln('FAILED');
+     end;
+end;
 
 procedure MainRepl();
 //var yytype:TTokenType;
 //input:string;
 begin
-     write('Loading core.4th...');
-     try
-                CreateReadStream('core.4th');
-                writeln('OK');
-     except on E:Exception do
-            writeln('FAILED');
-     end;
+     TryLoading('boot.4th');
 
      while true do
      try

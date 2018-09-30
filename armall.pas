@@ -53,6 +53,11 @@ begin
 
 end;
 
+procedure P_uk_kbd();
+begin
+ KeymapSetDefault(KeymapFindByName('UK'));
+end;
+
 procedure  StartArmAll();
 begin
   Fb:=FrameBufferDeviceGetDefault;
@@ -67,28 +72,14 @@ begin
   Sleep(100);
   FrameBufferDeviceSetDefault(Fb);
   FrameBufferDeviceGetProperties(Fb,@FrameBufferProperties);
-  //SetGimpPpmGluteFb(Fb);
-
   //FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
-
    WindowHandle:=ConsoleWindowCreate(ConsoleDeviceGetDefault,CONSOLE_POSITION_FULL,True);
-
-  // FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, $44444444, FRAMEBUFFER_TRANSFER_DMA);
-
-   //KeymapFindByName('UK');
-   //KeymapSetDefault();
-   //KEYMAP_DEFAULT := 'UK';
-   //Keymap_UKInit();
- WritelnConsole('Ultimc started');
-
- OptionallyMountDrive();
-
- KeymapSetDefault(KeymapFindByName('UK'));
- //WritelnConsole('Start typing, see what happens.');
-
- using_raspberry := true; // needed to fix readln() wierdness
- MainRepl();
- ThreadHalt(0);
+   WritelnConsole('Ultimc started');
+   OptionallyMountDrive();
+   //WritelnConsole('Start typing, see what happens.');
+   using_raspberry := true; // needed to fix readln() wierdness
+   MainRepl();
+   ThreadHalt(0);
 end;
 
 procedure OptionallyMountDrive();
@@ -227,6 +218,7 @@ begin
   AddPrim(0, 'EDITOR', @TextEditorMain);
   //EvalString(': # \ ; immediate');
   AddPrim(1, '#', @P_backslash);
+  AddPrim(0, 'UK-KBD', @P_uk_kbd);
 
   UltiboApiAddPrimitives();
 end;
