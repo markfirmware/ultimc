@@ -6,10 +6,11 @@ unit parser;
 interface
 
 uses
-	//fgl,
+	fgl,
 	classes, {TStringStream }
  	character { IsWhiteSpace }
         //, contnrs
+        //, GStack
         , sysutils
 	, variants
         , heapfuncs
@@ -21,7 +22,8 @@ type
 
         TWordType = (atomic, colonic, integral);
 
-
+        //TFileSteamStack = specialize TStack<TFileStream>;
+        TFileSteamStack = specialize TFPGObjectList<TFileStream>;
 
 
         TTokenType = (Eof, Word, Int);
@@ -29,6 +31,9 @@ type
 
         TState = (compiling, interpreting);
         const elit = %10 ; // implies that word contains embedded literal
+
+
+
 
 
 var
@@ -62,7 +67,8 @@ var
 
         bye:boolean; // time for dinner
 
-        fpin: TFileStream;
+        //fpin: TFileStream;
+        fsstack:TFileSteamStack;
 
 
 
@@ -324,20 +330,22 @@ end;
 {* TODO this should allow for nested includes. See also ReadLine *}
 procedure CreateReadStream(name:string);
 begin
-     fpin := TFileStream.Create(name, fmOpenRead);
+     //fpin := TFileStream.Create(name, fmOpenRead);
+     fsstack.Add(TFileStream.Create(name, fmOpenRead));
 
 end;
 
 procedure ReadLine();
 //var foo:TFileStream;
-var ch:Char;
+var ch:Char; fpin:TFileStream;
 begin
      //fpin := Nil;
      //fpin := Nil;
      yypos := 1;
 
      {* just using "stdin" *}
-     if fpin = Nil then
+     //if fpin = Nil then
+     if fsstack.Count = 0 then
      begin
              {$ifdef USES_ARM}
              ReadLinePtr(tib);
@@ -351,11 +359,20 @@ begin
      {* we're inputting from a file *}
      tib := '';
      ch := #0;
+     fpin := fsstack.Last;
      while (fpin.Read(ch, 1) = 1) and (ch <> #10) do tib += ch;
-     if (fpin.Position >= fpin.Size) then
+     if (fpin.Position >= fpin.Size) and (fsstack.count > 0) then
      begin
-          fpin.free();
-          fpin := Nil;
+          //fpin.free();
+          //fpin := Nil;
+          //writeln('About to free');
+          //fsstack.last.free();
+          //write('About to delete fsstack top...');
+          //writeln('Size of fsstack is:', fsstack.count);
+          fsstack.Delete(fsstack.count-1);
+          //writeln('Size of fsstack is now:', fsstack.count);
+          //writeln('DONE');
+
      end;
      {*
      if (fpin.Read(ch, 1) = 0) then
@@ -545,7 +562,9 @@ begin
      try
                 ProcessTib();
                 if bye then exit;
-                if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
+                //if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
+                if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
+
      except
 		on E: Exception do
                 begin
@@ -574,7 +593,10 @@ begin
         rsp := 0;
         esp := 0;
         bye := false;
-        fpin := Nil;
+        //fsstack.Create();
+        fsstack := TFileSteamStack.Create;
+        //New(fsstack);
+        //fpin := Nil;
         //heap1 := malloc(10000);
 
         //ReadLinePtr := ^ReadLn;
