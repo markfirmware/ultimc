@@ -15,3 +15,4 @@ The file `boot.4th` allows user-customisation of how the Forth starts. If you ar
 ## See also
 
 * [tech](tech.md) - technical notes about the implementation
+* [release-message](release-message.md) - created by MF (markfirmware)
