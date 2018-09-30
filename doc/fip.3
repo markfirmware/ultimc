@@ -18,11 +18,24 @@
 .START
 .DOC_COVER
 .NEWPAGE
-.HEADING 1 "1. An unexpected party"
-.PP
-This is just a test document
+.HEADING 1 "Introduction"
 
-Is this another paragraph?
+Ultimc is a toy, experimental  implementation of the Forth programming 
+language. It can be compiled to both hosted and native forms. "Hosted" 
+means that it runs on an OS (Operating System). All popular platforms
+are supported, including Windows and Linux.
+
+The "native" form means that it runs "bare-metal" on ARM processors, 
+i.e. without any underlying OS. 
+There are customisations for the Raspberry Pi computers. The most
+convenient way to perform experimental development work is via QEMU.
+QEMU's emulation of Raspberry Pi is incomplete as of 30 Sep 2018, 
+so you should only try to run the generic ARM version on it, not the Pi
+version.
+
+
+.HEADING 1 "Installing Ultimc"
+
 
 \#.QUOTE
 .FCODE 
