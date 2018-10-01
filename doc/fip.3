@@ -17,6 +17,67 @@
 ..
 .START
 .DOC_COVER
+
+.NEWPAGE
+.HEADING 1 "Preface"
+
+I have a penchant for small, minimal systems. It is hard for me to
+resist a bit of retro. I also have an interest in programming
+languages. So the idea of putting a Forth on a computer as a 
+bare-metal system was highly appealing to me. 
+
+I heard of Ultibo, which is a platform for writing bare-metal 
+programs for ARM processors, particularly Raspberry Pi's. 
+
+I started Ultimc with the intention of building a programmable
+system that would be something like a cross between shell scripting
+and BASIC. I used Ultibo as the base, and decided to call the
+project "Ultimc", being a combination of "Ultibo" and the initials of
+my name.
+
+I had progressed fairly well with my original aim of writing a 
+BASIC-like system. But then I came to the realisation, "hey, why not
+Forth?" Forth requires a special mindset from the programmer. 
+I have to admit that I have felt, for a long time, that I do not really 
+"get" Forth. I think that most other programmers do not "get" it either.
+Forth requires that you think simply - perhaps even simplistically - 
+about the problem. The programmer must endeavour to re-arrange,
+simplify, and even eliminate aspects of the problem if he can.
+
+Charles "Chuck" Moore, inventor of Forth, turns a lot of established
+conventions on their head, like this little gem from Moore (1970):
+.QUOTE
+Make variables as GLOBAL as possible.
+.QUOTE OFF
+This goes against all the received wisdom of "structured programming".
+
+I am glad that I started this project. I learned a lot about Forth,
+and has enabled me to write much better Forth and tackle projects
+that I would not have been able to undertake before. I have also
+gained insights into writing byte-codes, which will be useful for
+any interpreted languages that I decide to write in future. So my
+advice to people interested in writing interpreted languages is this:
+write yourself a Forth, as you will learn a lot of the techniques
+necessary in writing an interpreter for whatever language you had
+in mind.
+
+Pi's and ARM are fertile ground for exploring OS design, although
+I do not think many are exploring its potential. Linux seems 
+too heavyweight to me. I would love to see a port of AROS, an
+AmigaOS clone, available for the Pi. OberonOS would be interesting,
+too. Both of these projects were conceived many years before the
+Pi was introduced to the world.
+
+We are living in exciting times for small microprocessor systems.
+It feels like we are in the age of the late 1970's, when they first
+became available to the general public as useable systems.
+
+.PP
+.QUAD R
+Mark Carter
+.QUAD J
+
+
 .NEWPAGE
 .HEADING 1 "Introduction"
 
@@ -57,5 +118,10 @@ Example code
 \#.QUOTE OFF
 
 And now back to normal.
+
+.NEWPAGE
+.HEADING 1 "Bibliography"
+
+Moore C.: Programming a problem-oriented-language. https://colorforth.github.io/POL.htm [Retrieved Oct 2018]  (1970)
 
 .TOC
