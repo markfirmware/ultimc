@@ -1,0 +1,48 @@
+#!/bin/bash
+set -e
+
+trap finish EXIT
+function finish {
+  PGID=$(ps -o pgid= $$ | grep -o [0-9]*)
+  setsid kill -- -$PGID
+  exit 0
+}
+
+LPIFILE=$1
+if [[ $LPIFILE == "" ]]
+then
+    LPIFILE=telnetdemo.lpi
+fi
+
+function buildmode {
+    MODE=$1
+    echo
+    echo building $LPIFILE $MODE ...
+    rm -rf lib/
+    WD=$(pwd)
+    if [ -d "/c/Ultibo/Core" ]; then
+	LAZDIR=/c/Ultibo/Core
+    fi
+    if [ -d "$HOME/ultibo/core" ]; then
+	LAZDIR="$HOME/ultibo/core"
+    fi
+    pushd $LAZDIR >& /dev/null
+    rm -f kernel*.img kernel.bin
+    ./lazbuild --build-mode=BUILD_MODE_$MODE $WD/$LPIFILE >& errors.txt
+    popd >& /dev/null
+    mv kernel* $(basename $LPIFILE)-kernel-${MODE,,}.img
+}
+
+buildmode QEMUVPB
+
+DRIVE="-drive file=fipq/ultibo.img,if=sd,format=raw"
+KERNEL="-kernel $(basename $LPIFILE)-kernel-qemuvpb.img"
+DISPLAY="-display none"
+NET="-net nic -net user,hostfwd=tcp::5823-:23"
+CMDLINE="NETWORK0_IP_CONFIG=STATIC NETWORK0_IP_ADDRESS=10.0.2.15 NETWORK0_IP_NETMASK=255.255.255.0 NETWORK0_IP_GATEWAY=10.0.2.2"
+echo
+echo starting qemu and telnet ... wait for ultibo prompt ...
+qemu-system-arm -machine versatilepb -cpu cortex-a8 -m 256M $DRIVE $KERNEL $NET $DISPLAY -append "$CMDLINE" |& egrep -v '^(ALSA |alsa:|audio:|pulseaudio:)' &
+echo
+sleep 1
+telnet localhost 5823
