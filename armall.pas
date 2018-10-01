@@ -19,8 +19,9 @@ uses
   , SysUtils
   , Classes
   , Ultibo
-  , DWCOTG,FileSystem,MMC,FATFS,Keyboard
-
+  , DWCOTG, Keyboard
+  , FileSystem, MMC, FATFS
+  , RemoteShell, ShellForth
   , secondary
   , parser
 
