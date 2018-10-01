@@ -347,11 +347,11 @@ begin
      //if fpin = Nil then
      if fsstack.Count = 0 then
      begin
-             {$ifdef USES_ARM}
+             //{$ifdef USES_ARM}
              ReadLinePtr(tib);
-             {$else}
-             readln(tib);
-             {$endif}
+             //{$else}
+             //readln(tib);
+             //{$endif}
           if using_raspberry then writeln(''); // seems to be a quirk
           exit;
      end;
@@ -579,10 +579,15 @@ begin
      end;
 end;
 
+procedure StdinReadLn(var text:string);
+begin
+     readln(text);
+end;
 
 initialization
 begin
         using_raspberry := false;
+        ReadLinePtr := @StdinReadLn;
         //procMap := TProcMap.Create;
         IntStackSize := 0;
         latest := Nil;
