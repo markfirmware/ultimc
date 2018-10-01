@@ -5,10 +5,9 @@ unit forthgpio;
 interface
 
 uses
-  Classes, SysUtils, parser, heapfuncs
-  //Glute,
-  {Devices,}
-  ,GPIO
+  Classes, SysUtils
+  , parser
+  , GPIO
   ;
 
 type
@@ -26,29 +25,19 @@ begin
 end;
 
 procedure gfs();
-//{$push}{$warn 5024 off}
-//var pin, mode:TCell;
 begin
-     //mode := Pop();
-     //pin  := Pop();
      Args2(@SysGPIOFunctionSelect);
-     {* SysGPIOFunctionSelect(pin, mode); *}
 end;
-//{$pop}
 
 procedure gos();
-//{$push}{$warn 5024 off}
 begin
      Args2(@SysGPIOOutputSet);
 end;
-//{$pop}
 
 procedure gps();
-//{$push}{$warn 5024 off}
 begin
      Args2(@SysGPIOPullSelect);
 end;
-//{$pop}
 
 initialization
 begin

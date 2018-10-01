@@ -11,7 +11,6 @@ interface
 uses
   Classes, SysUtils
   ,parser
-  , heapfuncs
   ;
 
 

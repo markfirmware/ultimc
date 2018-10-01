@@ -23,7 +23,6 @@ uses
 
   , secondary
   , parser
-  , heapfuncs
 
   , texteditor
   , ultiboapi

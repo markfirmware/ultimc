@@ -13,12 +13,30 @@ uses
         //, GStack
         , sysutils
 	, variants
-        , heapfuncs
 	;
 
+const MAX_HEAP = 10000;
 
 
 type
+          {$ifdef CPU32}
+          TCell = Int32;
+          {$else}
+          TCell = Int64;
+          {$endif}
+          TCellPtr = TCell; // hopefully will eliminate confusion
+
+
+          TProc = procedure();
+
+          THeaderPtr = ^THeader;
+          THeader = record // a header for a word
+                  link:THeaderPtr;
+                  flags:byte;
+                  name:PString;
+                  codeptr:TProc;
+                  hptr:Integer; // pointer to the heap
+          end; // data will extend beyond this
 
         TWordType = (atomic, colonic, integral);
 
@@ -37,6 +55,12 @@ type
 
 
 var
+                hptr:Integer; // pointer into the heap
+        heap:array[1..MAX_HEAP] of byte;
+        latest:THeaderPtr; // the latest word being defined
+
+
+
         using_raspberry:Boolean;
 
         state:TState;
@@ -71,7 +95,16 @@ var
         fsstack:TFileSteamStack;
 
 
+procedure HeapifyByte(b:byte);
+procedure HeapifyCell(val:TCell);
+procedure HeapifyHeader(hdr:THeaderPtr);
 
+procedure HeapPointer(ptr:Pointer);
+function ToHeaderPtr(ip:Integer):THeaderPtr;
+function GetHeapByte(pos:TCellPtr):byte;
+function GetHeapCell(pos:TCellPtr): TCell;
+function GetHeapPointer(pos:Integer) : Pointer;
+procedure SetHeapCell(ptr:TCellPtr; val:TCell);
 //procedure InitLexer(s:String);
 //function yylex(var the_yytext:String):TTokenType;
 procedure CreateHeader(immediate:byte; name:string; proc:TProc);
@@ -96,6 +129,55 @@ procedure P_create();
 
 
 implementation
+
+
+{$push}
+{$hints off}   // hide warning var not initialized
+function ToHeaderPtr(ip:Integer):THeaderPtr;
+begin
+     Move(heap[ip], ToHeaderPtr, sizeof(Pointer));
+end;
+function GetHeapCell(pos:TCellPtr): TCell;
+begin
+     Move(heap[pos], GetHeapCell, sizeof(TCell));
+end;
+function GetHeapPointer(pos:Integer) : Pointer;
+begin
+        Move(heap[pos], GetHeapPointer, sizeof(Pointer));
+end;
+function GetHeapByte(pos:TCellPtr):byte;
+begin
+     Move(heap[pos], GetHeapByte, sizeof(byte));
+end;
+{$pop}
+
+procedure SetHeapCell(ptr:TCellPtr; val:TCell);
+begin
+        Move(val, heap[ptr], sizeof(TCell));
+end;
+procedure HeapifyHeader(hdr:THeaderPtr);
+begin
+        Move(hdr, heap[hptr], sizeof(Pointer));
+        inc(hptr, sizeof(Pointer));
+end;
+
+procedure HeapifyByte(b:byte);
+begin
+        heap[hptr] := b;
+        inc(hptr);
+end;
+
+
+procedure HeapifyCell(val:TCell);
+begin
+     Move(val, heap[hptr], sizeof(TCell));
+     inc(hptr, sizeof(TCell));
+end;
+procedure HeapPointer(ptr:Pointer);
+begin
+        Move(ptr, heap[hptr], sizeof(Pointer));
+        inc(hptr, sizeof(Pointer));
+end;
 
 
 function P_find(name:string): THeaderPtr;
@@ -586,6 +668,7 @@ end;
 
 initialization
 begin
+          hptr := 1;
         using_raspberry := false;
         ReadLinePtr := @StdinReadLn;
         //procMap := TProcMap.Create;
