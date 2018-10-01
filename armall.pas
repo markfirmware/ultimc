@@ -112,28 +112,6 @@ begin
  percent := TCell(round(v * pc / 100));
 end;
 
-procedure P_to_rgb16();
-var b,g,r, rgb:TCell;
-begin
- b := percent(pop(), 31);
- g := percent(pop(), 63);
- r := percent(pop(), 31);
- rgb := (r shl 11) + (g shl 5) + b;
- push(rgb);
-end;
-
-
-procedure P_to_rgba16();
-var b,g,r, a, rgba:TCell;
-begin
- a := pop();
- b := pop();
- g := pop();
- r := pop();
- rgba := (r shl 12) + (g shl 8) + (b shl 4) + a;
- push(rgba);
-end;
-
 procedure P_fbrect();
 var x0, y0, x1, y1, rgb, rgb1, base:LongWord;
     r, g, b:integer;
@@ -154,68 +132,13 @@ begin
  FramebufferDeviceFillRect(Fb, x0, y0, x1, y1, rgb1, FRAMEBUFFER_TRANSFER_DMA);
 end;
 
-procedure sqre(color:LongWord);
-begin
- FramebufferDeviceFillRect(Fb, 0, 0, 500, 500, color, FRAMEBUFFER_TRANSFER_DMA);
-end;
-
-procedure P_red();
-begin
- sqre(%0000000011110000); // this actually is red
-end;
-procedure P_green();
-begin
- sqre(%1111000000001111);  // this is acutally green
-end;
-procedure P_blue();
-begin
- sqre(%0000111100000000); // black
- sqre(%0000111100001111); // black
- sqre(%1111111100001111); // green
- sqre(%1111000011111111); // yellow
- sqre(%0000000011111111); // red
- sqre(%1111111111111111); // yellow
- sqre(0); // black
- sqre(%1111);  //black
- sqre(%11111111); //red
- sqre(%111111111111); //red
- sqre(%101010101010); // reddish
- sqre(%010101010101); // deeper red
- sqre($F000); // green
- sqre($F0FF); //yellow
- sqre($FF00); //
- sqre($FFFFFFFF); //   white
- sqre($FFFF0000); //   blue
- sqre($FF00FF00); //   green
- sqre($FF0000FF); // red
- //sqre($FFFF0000); //   blue
- sqre($FFFF0000); //   blue
- sqre($FFFF00); //   cyan
- sqre($FF00FF); // magenta
- sqre($00FFFF);  //yellow
- sqre($333333);  //grey'ish
- sqre($333333*5);  //lighter grey'ish
- sqre($888800); //   very nice cyan
- sqre($880088); // purple
- sqre($000088);
-
-
-
-end;
-
 
 initialization
 begin
   ReadLinePtr := @ReadLnConsole;
   c_drive_required := True;
   AddPrim(0, 'FBRECT', @P_fbrect);
-  AddPrim(0, '>RGB16', @P_to_rgb16);
-  AddPrim(0, '>RGBA16', @P_to_rgba16);
-  AddPrim(0, 'RED', @P_red);
-  AddPrim(0, 'GREEN', @P_green);
-  AddPrim(0, 'BLUE', @P_blue);
   AddPrim(0, 'EDITOR', @TextEditorMain);
-  //EvalString(': # \ ; immediate');
   AddPrim(1, '#', @P_backslash);
   AddPrim(0, 'UK-KBD', @P_uk_kbd);
 
