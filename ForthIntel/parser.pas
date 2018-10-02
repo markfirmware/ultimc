@@ -116,6 +116,7 @@ function MakeString():string;
 procedure AddPrim(flags:byte;name:string; ptr:TProc);
 procedure Push(val:TCell);
 function Pop(): TCell;
+procedure RunForthRepl();
 function yylex() : TTokenType;
 procedure yyparse();
 procedure P_word();
@@ -637,28 +638,31 @@ begin
      	    writeln('FAILED');
      end;
 end;
+procedure RunForthRepl();
+begin
+     while true do
+     try
+           ProcessTib();
+           if bye then exit;
+           //if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
+           if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
+
+     except
+   	   on E: Exception do
+           begin
+   		DumpExceptionCallStack(E);
+                   DisasterRecovery();
+           end;
+     end;
+
+end;
 
 procedure MainRepl();
 //var yytype:TTokenType;
 //input:string;
 begin
      TryLoading('boot.4th');
-
-     while true do
-     try
-                ProcessTib();
-                if bye then exit;
-                //if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
-                if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
-
-     except
-		on E: Exception do
-                begin
-			DumpExceptionCallStack(E);
-                        DisasterRecovery();
-                end;
-
-     end;
+     RunForthRepl();
 end;
 
 procedure StdinReadLn(var text:string);
