@@ -46,6 +46,7 @@ type
 
         TTokenType = (Eof, Word, Int);
         TReadLinePtr = procedure(var text:string);
+        TWritePtr = procedure(text:string);
 
         TState = (compiling, interpreting);
         const elit = %10 ; // implies that word contains embedded literal
@@ -73,6 +74,7 @@ var
         IntStack: array[1..200] of TCell;
         IntStackSize:Integer;
         ReadLinePtr:TReadLinePtr;
+        WritePtr:TWritePtr;
 
 
 
@@ -181,6 +183,11 @@ begin
 end;
 
 
+procedure ForthWriteLn(text:string);
+begin
+        WritePtr(concat(text, AnsiChar(#10)));
+end;
+
 function P_find(name:string): THeaderPtr;
 begin
      P_find := latest;
@@ -229,7 +236,7 @@ begin
         Pop := 0;
         if(IntStackSize<1) then
         begin
-                writeln('Stack underflow');
+                forthwriteln('Stack underflow');
                 exit;
         end;
 
@@ -356,7 +363,7 @@ begin
 	Frames := ExceptFrames;
 	for I := 0 to ExceptFrameCount - 1 do
 		Report := Report + LineEnding + BackTraceStrFunc(Frames[I]);
-	writeln(Report);
+	forthwriteln(Report);
 end;
 
 
@@ -420,7 +427,7 @@ begin
      if fsstack.Count = 0 then
      begin
              ReadLinePtr(tib);
-          if using_raspberry then writeln(''); // seems to be a quirk
+          if using_raspberry then forthwriteln(''); // seems to be a quirk
           exit;
      end;
 
@@ -514,8 +521,8 @@ begin
      case yytype of
         Int: EvalInteger(yylval_i);
         Word: EvalWord(yylval_text);
-        Eof: writeln('EvalToken:Eof');
-        else writeln('EvalToken:unknown');
+        Eof: forthwriteln('EvalToken:Eof');
+        else forthwriteln('EvalToken:unknown');
      end;
 end;
 procedure yyparse();
@@ -591,12 +598,12 @@ end;
 
 procedure TryLoading(path:string);
 begin
-     write('Loading ', path, '...');
+     writeptr(concat('Loading ', path, '...'));
      try
            CreateReadStream(path);
-           writeln('OK');
+           forthwriteln('OK');
      except on E:Exception do
-     	    writeln('FAILED');
+     	    forthwriteln('FAILED');
      end;
 end;
 procedure RunForthRepl();
@@ -605,7 +612,7 @@ begin
      try
            ProcessTib();
            if bye then exit;
-           if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
+           if (yypos >= length(tib)) and (fsstack.count = 0) then forthwriteln(' ok');
 
      except
    	   on E: Exception do
@@ -630,11 +637,17 @@ begin
      readln(text);
 end;
 
+procedure StdoutWrite(text:string);
+begin
+     write(text);
+end;
+
 initialization
 begin
           hptr := 1;
         using_raspberry := false;
         ReadLinePtr := @StdinReadLn;
+        WritePtr := @StdoutWrite;
         //procMap := TProcMap.Create;
         IntStackSize := 0;
         latest := Nil;
