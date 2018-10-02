@@ -46,6 +46,7 @@ type
 
         TTokenType = (Eof, Word, Int);
         TReadLinePtr = procedure(var text:string);
+        TWritePtr = procedure(text:string);
 
         TState = (compiling, interpreting);
         const elit = %10 ; // implies that word contains embedded literal
@@ -73,6 +74,7 @@ var
         IntStack: array[1..200] of TCell;
         IntStackSize:Integer;
         ReadLinePtr:TReadLinePtr;
+        WritePtr:TWritePtr;
 
 
 
@@ -181,6 +183,11 @@ begin
 end;
 
 
+procedure ForthWriteLn(text:string);
+begin
+        WritePtr(concat(text, AnsiChar(#10)));
+end;
+
 function P_find(name:string): THeaderPtr;
 begin
      P_find := latest;
@@ -229,7 +236,7 @@ begin
         Pop := 0;
         if(IntStackSize<1) then
         begin
-                writeln('Stack underflow');
+                forthwriteln('Stack underflow');
                 exit;
         end;
 
@@ -269,10 +276,7 @@ end;
 procedure P_create();
 begin
      P_word(); // read the name of the word being defined
-     //writeln(' word being created is:', yytext);
      CreateHeader(0, yytext, @P_lrb_create_rrb); // it assumes its not immediate
-     //HeapifyWord('BRANCH');
-     //HeapifyCell(sizeof(TCell));
 end;
 
 procedure rpush(i:Integer);
@@ -301,9 +305,6 @@ procedure ExecHeader(ptr:THeaderPtr);
 var ptr1:TProc;
 begin
      PushExecStack(ptr);
-     //writeln('Executing stack depth:', csp, ' ', ptr^.name^);
-
-
      ptr1 := TProc(ptr^.codeptr);
      wptr := ptr^.hptr;
      ptr1();
@@ -362,12 +363,7 @@ begin
 	Frames := ExceptFrames;
 	for I := 0 to ExceptFrameCount - 1 do
 		Report := Report + LineEnding + BackTraceStrFunc(Frames[I]);
-	
-	{ShowMessage(Report);
-	Halt; // End of program execution
-	}
-
-	writeln(Report);
+	forthwriteln(Report);
 end;
 
 
@@ -430,12 +426,8 @@ begin
      //if fpin = Nil then
      if fsstack.Count = 0 then
      begin
-             //{$ifdef USES_ARM}
              ReadLinePtr(tib);
-             //{$else}
-             //readln(tib);
-             //{$endif}
-          if using_raspberry then writeln(''); // seems to be a quirk
+          if using_raspberry then forthwriteln(''); // seems to be a quirk
           exit;
      end;
 
@@ -446,26 +438,8 @@ begin
      while (fpin.Read(ch, 1) = 1) and (ch <> #10) do tib += ch;
      if (fpin.Position >= fpin.Size) and (fsstack.count > 0) then
      begin
-          //fpin.free();
-          //fpin := Nil;
-          //writeln('About to free');
-          //fsstack.last.free();
-          //write('About to delete fsstack top...');
-          //writeln('Size of fsstack is:', fsstack.count);
           fsstack.Delete(fsstack.count-1);
-          //writeln('Size of fsstack is now:', fsstack.count);
-          //writeln('DONE');
-
      end;
-     {*
-     if (fpin.Read(ch, 1) = 0) then
-     begin
-          fpin.free();
-          fpin := Nil;
-     end;
-     *}
-     //writeln('ReadLine:tib:', tib);
-
 end;
 
 function yylex() : TTokenType;
@@ -492,14 +466,11 @@ begin
         if IsInt() then
         begin
                 yylex := Int;
-                //writeln('yylex:int:', yylval_i);
         end
         else
         begin
                 yylex := Word;
                 yylval_text := yytext;
-                //writeln('yylex:word:', yylval_text);
-
         end;
 end;
 
@@ -546,14 +517,12 @@ begin
      HeapifyCell(val);
 end;
 procedure EvalToken(yytype:TTokenType);
-//var ptr:TGluteProc;
 begin
-     //writeln('EvalToken called:', yytext);
      case yytype of
         Int: EvalInteger(yylval_i);
         Word: EvalWord(yylval_text);
-        Eof: writeln('EvalToken:Eof');
-        else writeln('EvalToken:unknown');
+        Eof: forthwriteln('EvalToken:Eof');
+        else forthwriteln('EvalToken:unknown');
      end;
 end;
 procedure yyparse();
@@ -579,7 +548,6 @@ procedure P_0branch();
 var offset:TCell;
 begin
      offset := GetHeapCell(rstack[rsp]);
-     //writeln('branch offset:', offset);
      if Pop() = 0 then rstack[rsp] += offset else rstack[rsp] += sizeof(TCell);
 end;
 
@@ -630,12 +598,12 @@ end;
 
 procedure TryLoading(path:string);
 begin
-     write('Loading ', path, '...');
+     writeptr(concat('Loading ', path, '...'));
      try
            CreateReadStream(path);
-           writeln('OK');
+           forthwriteln('OK');
      except on E:Exception do
-     	    writeln('FAILED');
+     	    forthwriteln('FAILED');
      end;
 end;
 procedure RunForthRepl();
@@ -644,8 +612,7 @@ begin
      try
            ProcessTib();
            if bye then exit;
-           //if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
-           if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
+           if (yypos >= length(tib)) and (fsstack.count = 0) then forthwriteln(' ok');
 
      except
    	   on E: Exception do
@@ -670,11 +637,17 @@ begin
      readln(text);
 end;
 
+procedure StdoutWrite(text:string);
+begin
+     write(text);
+end;
+
 initialization
 begin
           hptr := 1;
         using_raspberry := false;
         ReadLinePtr := @StdinReadLn;
+        WritePtr := @StdoutWrite;
         //procMap := TProcMap.Create;
         IntStackSize := 0;
         latest := Nil;
