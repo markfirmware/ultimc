@@ -22,8 +22,6 @@ var
 
 
 implementation
-//uses
- //ultiboapi;
 
 {$push}
 {$hints off}   // hide warning var not initialized
@@ -37,9 +35,8 @@ procedure P_printstack();
 var
         i:Integer;
 begin
-        //writeln('PrintStack called');
         for i := 1 to IntStackSize do
-                write(IntStack[i], ' ');
+                writeptr(Format('%D ', [IntStack[i]])); // , ' '));
 end;
 procedure P_plus();
 begin
@@ -63,7 +60,7 @@ begin
 end;
 procedure P_dot();
 begin
-        write(Pop(), ' ');
+        writeptr(Format('%D ', [Pop()])); // , ' ');
 end;
 
 procedure P_dup();
@@ -80,17 +77,17 @@ end;
 
 procedure PrintSize(TypeName:string; TypeSize:Integer);
 begin
-        write(TypeName, '(', TypeSize, '), ');
+        writeptr(concat(TypeName, '(', inttostr(TypeSize), '), '));
 end;
 
 procedure P_info();
 begin
-        write('sizes: ');
+        writeptr('sizes: ');
         PrintSize('cell', sizeof(TCell));
         PrintSize('int', sizeof(Integer));
         PrintSize('int64', sizeof(Int64));
         PrintSize('pointer', sizeof(Pointer));
-        writeln('Require sizes cell = pointer');
+        forthwriteln('Require sizes cell = pointer');
 end;
 
 procedure P_words();
@@ -99,7 +96,7 @@ begin
      d := latest;
      while d <> Nil do
      begin
-       writeln(d^.name^);
+       forthwriteln(d^.name^);
        d := d^.link;
      end;
 end;
@@ -134,9 +131,10 @@ begin
      is_imm := flags and 1;
      if(hdr^.codeptr <> @Docol) then
      begin
-             write(Uppercase(yytext), ' is primitive ');
-             if (is_imm  = 1) then write('IMMEDIATE ');
-             writeln();
+             writeptr(Uppercase(yytext));
+             writeptr(' is primitive ');
+             if (is_imm  = 1) then writeptr('IMMEDIATE ');
+             forthwriteln('');
              exit;
      end;
 
@@ -144,18 +142,18 @@ begin
 again:
      hdr := ToHeaderPtr(ip);
      name := hdr^.name^;
-     write(name, ' ');
+     writeptr(name);
+     writeptr(' ');
      if (hdr^.flags and elit) > 0 then
      begin
              inc(ip, sizeof(Pointer));
-             write(GetHeapCell(ip), ' ');
+             write(GetHeapCell(ip), ' '); // TODO soprt this out
      end;
      inc(ip, sizeof(Pointer));
 
      if name <> ';' then goto again;
-     if (is_imm  = 1) then write('IMMEDIATE ');
+     if (is_imm  = 1) then writeptr('IMMEDIATE ');
 
-     //writeln('seeing ', h^.name^);
 end;
 procedure P_lsb();
 begin
@@ -255,20 +253,16 @@ begin
 end;
 procedure P_begin();
 begin
-     //HeapifyWord('BRANCH');
      P_here();
-     //HeapPointer(Pointer($BAD));
 end;
 procedure P_again();
 begin
      HeapifyWord('ABRANCH');
-     //HeapPointer(Pointer(Pop()));
      HeapifyCell(Pop());
 end;
 
 procedure P_compile_comma();
 begin
-     //writeln('compile, TODO');
      HeapifyCell(Pop());
 end;
 
@@ -331,7 +325,6 @@ begin
              EmbedLiteral(count);
      end
      else Push(count);
-     //writeln('string:<',
 end;
 
 procedure P_type();
@@ -339,12 +332,12 @@ var n, i, pos:TCell;
 begin
      n := Pop();
      pos := Pop();
-     for i := 1 to n do write(char(GetHeapByte(pos+i-1)));
+     for i := 1 to n do writeptr(char(GetHeapByte(pos+i-1)));
 end;
 
 procedure P_cr();
 begin
-     writeln();
+     forthwriteln('');
 end;
 procedure P_over();
 var x1:TCell;
@@ -366,7 +359,7 @@ var h:TheaderPtr;
 begin
      //h := THeaderPtr(Pop());
      h := PopHeader();
-     write(h^.name^);
+     writeptr(h^.name^);
 end;
 
 procedure P_literal();
@@ -406,7 +399,6 @@ begin
 
      does_loc := Pop();
      {* prove that cell before the offset is an exit statement *}
-     //prior :=  THeaderPtr(GetHeapCell(does_loc - sizeof(TCell)));
      prior :=  ToHeaderPtr(does_loc - sizeof(TCell));
      assert(prior^.name^ = 'EXIT');
 
@@ -435,7 +427,6 @@ begin
      HeapifyWord('ABRANCH');
      HeapifyCell(888);
      HeapifyWord(';');
-     //writeln('builds created docol:', yytext);
 end;
 
 procedure P_l_oto_r();
@@ -445,13 +436,10 @@ begin
      newval :=  GetHeapCell(pos) -1;
      if newval < 0 then newval := 0;
      SetHeapCell(pos, newval);
-     //if GetHeapCell(pos) = 1 then SetHeapCell(pos, 0);
-     //writeln(' oto value is:', pos, ' ', GetHeapCell(pos));
 end;
 
 procedure P_oto();
 begin
-     //writeln('oto info:', hptr);
      HeapifyWord('(OTO)');
      EmbedLiteral(2);
 end;
@@ -483,11 +471,6 @@ begin
      handle := pop();
      addr := buf + @heap -1 ;
      Push(FileRead(handle, addr^, count));
-
-     //write('contents:');
-     //for i := 1 to 10 do write(char(heap[buf +i-1]));
-     //writeln();
-
 end;
 
 procedure DefConst(val:TCell; str:string);
@@ -502,10 +485,10 @@ var i:integer;
 begin
      for i := 1 to 16 do
      begin
-          write(i);
+          write(i); // TODO sort this out
           if i < 10 then write(' ');
-          if i = bln then write('>') else write(' ');
-          writeln(blocks[blk, i]);
+          if i = bln then write('>') else writeptr(' ');
+          forthwriteln(blocks[blk, i]);
      end;
 end;
 
@@ -521,7 +504,8 @@ begin
      for b := 1 to 64 do
      for l := 1 to 16 do
      begin
-          writeln(f, blocks[b, l]);
+          forthwriteln('P_savb TODO');
+          //forthwriteln(f, blocks[b, l]); // TODO
      end;
      CloseFile(f);
 end;
@@ -543,13 +527,11 @@ var f:File; buf: array[1..2048] of byte; NumRead:SmallInt; i:integer;fname:strin
 begin
      NumRead := 0; buf[1] := 0; // dummy initialisation
      fname := MakeString();
-     //writeln('File name is:', fname);
      AssignFile(f, fname);
      Reset(f, 1);
      repeat
        BlockRead(f, buf, sizeof(buf), NumRead);
-       //writeln('Bytes REad:', NumRead);
-       for i:= 1 to NumRead do write(char(buf[i]));
+       for i:= 1 to NumRead do writeptr(char(buf[i]));
      until NumRead = 0;
      Close(f);
 
@@ -683,13 +665,6 @@ begin
           EvalString(': 2!            swap over ! cell+ ! ;');
           EvalString(': !0exit ` 0branch 2 cells , ` exit ; immediate');
           EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
-
-          //UltiboApiAddPrimitives;
-
-          //writeln('Init:@PrintStack:',  Int64(@P_printstack));
-          //P_words();
-          //P_find('CREATE');
-
 end;
 end.
 

@@ -97,6 +97,7 @@ var
         fsstack:TFileSteamStack;
 
 
+procedure ForthWriteLn(text:string);
 procedure HeapifyByte(b:byte);
 procedure HeapifyCell(val:TCell);
 procedure HeapifyHeader(hdr:THeaderPtr);
@@ -185,7 +186,8 @@ end;
 
 procedure ForthWriteLn(text:string);
 begin
-        WritePtr(concat(text, AnsiChar(#10)));
+        WritePtr(text);
+        writePtr(AnsiChar(#10));
 end;
 
 function P_find(name:string): THeaderPtr;
