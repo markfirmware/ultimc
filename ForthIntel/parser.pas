@@ -610,6 +610,9 @@ begin
 end;
 procedure RunForthRepl();
 begin
+     WritePtr('Hi:');
+     ForthWriteLn('Starting Repl');
+
      while true do
      try
            ProcessTib();

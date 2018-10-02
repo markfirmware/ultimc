@@ -148,8 +148,11 @@ end;
 
 procedure ShellForthWritePtr(text:string);
 begin
- //AShell.DoOutput(ASession, Format('forth interpreter initialized',[]));
  TheShell.DoOutput(TheSession, text);
+end;
+procedure ShellForthReadLnPtr(var text:string);
+begin
+ TheShell.DoInput(TheSession, text);
 end;
 
 function TShellForth.DoCommand(AShell:TShell;ASession:TShellSession;AParameters:TStrings):Boolean; 
@@ -169,8 +172,11 @@ begin
  TheShell := AShell;
  TheSession := ASession;
  WritePtr := @ShellForthWritePtr;
- WritePtr('From inside WritePtr');
- //ShellForthWrite
+ ReadLinePtr := @ShellForthReadLnPtr;
+ ForthWriteLn('From inside WritePtr, Now say something');
+ ReadLinePtr(Sentence); // TODO this doesn't actually work
+ ForthWriteLn(concat('You said:', Sentence));
+ exit(); // exit just for now
  RunForthRepl();
  Exit;
 
