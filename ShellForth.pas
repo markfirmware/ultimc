@@ -42,7 +42,10 @@ unit ShellForth;
 
 interface
 
-uses GlobalConfig,GlobalConst,GlobalTypes,Platform,Threads,Devices,FileSystem,SysUtils,Classes,Ultibo,UltiboClasses,UltiboUtils,Shell,HTTP;
+uses GlobalConfig,GlobalConst,GlobalTypes,Platform,Threads,Devices,FileSystem,SysUtils,Classes,Ultibo,UltiboClasses,UltiboUtils,Shell,HTTP
+     , parser
+     ;
+
 
 //To Do //Look for:
 
@@ -151,6 +154,11 @@ begin
  
  {Check Shell}
  if AShell = nil then Exit;
+
+ {stuff inserted by MC (Mark Carter)}
+ RunForthRepl();
+ Exit;
+
 
  {Check Parameters}
  if AParameters = nil then Exit;
