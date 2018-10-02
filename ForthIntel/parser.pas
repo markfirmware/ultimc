@@ -269,10 +269,7 @@ end;
 procedure P_create();
 begin
      P_word(); // read the name of the word being defined
-     //writeln(' word being created is:', yytext);
      CreateHeader(0, yytext, @P_lrb_create_rrb); // it assumes its not immediate
-     //HeapifyWord('BRANCH');
-     //HeapifyCell(sizeof(TCell));
 end;
 
 procedure rpush(i:Integer);
@@ -301,9 +298,6 @@ procedure ExecHeader(ptr:THeaderPtr);
 var ptr1:TProc;
 begin
      PushExecStack(ptr);
-     //writeln('Executing stack depth:', csp, ' ', ptr^.name^);
-
-
      ptr1 := TProc(ptr^.codeptr);
      wptr := ptr^.hptr;
      ptr1();
@@ -362,11 +356,6 @@ begin
 	Frames := ExceptFrames;
 	for I := 0 to ExceptFrameCount - 1 do
 		Report := Report + LineEnding + BackTraceStrFunc(Frames[I]);
-	
-	{ShowMessage(Report);
-	Halt; // End of program execution
-	}
-
 	writeln(Report);
 end;
 
@@ -430,11 +419,7 @@ begin
      //if fpin = Nil then
      if fsstack.Count = 0 then
      begin
-             //{$ifdef USES_ARM}
              ReadLinePtr(tib);
-             //{$else}
-             //readln(tib);
-             //{$endif}
           if using_raspberry then writeln(''); // seems to be a quirk
           exit;
      end;
@@ -446,26 +431,8 @@ begin
      while (fpin.Read(ch, 1) = 1) and (ch <> #10) do tib += ch;
      if (fpin.Position >= fpin.Size) and (fsstack.count > 0) then
      begin
-          //fpin.free();
-          //fpin := Nil;
-          //writeln('About to free');
-          //fsstack.last.free();
-          //write('About to delete fsstack top...');
-          //writeln('Size of fsstack is:', fsstack.count);
           fsstack.Delete(fsstack.count-1);
-          //writeln('Size of fsstack is now:', fsstack.count);
-          //writeln('DONE');
-
      end;
-     {*
-     if (fpin.Read(ch, 1) = 0) then
-     begin
-          fpin.free();
-          fpin := Nil;
-     end;
-     *}
-     //writeln('ReadLine:tib:', tib);
-
 end;
 
 function yylex() : TTokenType;
@@ -492,14 +459,11 @@ begin
         if IsInt() then
         begin
                 yylex := Int;
-                //writeln('yylex:int:', yylval_i);
         end
         else
         begin
                 yylex := Word;
                 yylval_text := yytext;
-                //writeln('yylex:word:', yylval_text);
-
         end;
 end;
 
@@ -546,9 +510,7 @@ begin
      HeapifyCell(val);
 end;
 procedure EvalToken(yytype:TTokenType);
-//var ptr:TGluteProc;
 begin
-     //writeln('EvalToken called:', yytext);
      case yytype of
         Int: EvalInteger(yylval_i);
         Word: EvalWord(yylval_text);
@@ -579,7 +541,6 @@ procedure P_0branch();
 var offset:TCell;
 begin
      offset := GetHeapCell(rstack[rsp]);
-     //writeln('branch offset:', offset);
      if Pop() = 0 then rstack[rsp] += offset else rstack[rsp] += sizeof(TCell);
 end;
 
@@ -644,7 +605,6 @@ begin
      try
            ProcessTib();
            if bye then exit;
-           //if (yypos >= length(tib)) and (fpin = Nil) then writeln(' ok');
            if (yypos >= length(tib)) and (fsstack.count = 0) then writeln(' ok');
 
      except
