@@ -104,6 +104,8 @@ var
  {Shell Forth specific variables}
  ForthInterpreter:Integer; // Probably replace with an object refernce
  ShellForthInitialized:Boolean;
+ TheShell:TShell;
+ TheSession:TShellSession;
  
 {==============================================================================}
 {==============================================================================}
@@ -144,6 +146,12 @@ begin
 end;
 
 
+procedure ShellForthWritePtr(text:string);
+begin
+ //AShell.DoOutput(ASession, Format('forth interpreter initialized',[]));
+ TheShell.DoOutput(TheSession, text);
+end;
+
 function TShellForth.DoCommand(AShell:TShell;ASession:TShellSession;AParameters:TStrings):Boolean; 
 var
  Sentence:String;
@@ -156,6 +164,13 @@ begin
  if AShell = nil then Exit;
 
  {stuff inserted by MC (Mark Carter)}
+ AShell.DoOutput(ASession, Format('forth interpreter initialized',[]));
+ AShell.DoOutput(ASession, 'Go forth');
+ TheShell := AShell;
+ TheSession := ASession;
+ WritePtr := @ShellForthWritePtr;
+ WritePtr('From inside WritePtr');
+ //ShellForthWrite
  RunForthRepl();
  Exit;
 
