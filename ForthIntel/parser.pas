@@ -872,10 +872,12 @@ begin
 end;
 procedure P_if();
 begin
-     HeapPointer(P_find('0ABRANCH'));
+     //HeapPointer(P_find('0ABRANCH'));
+     HeapifyWord('0ABRANCH');
      P_here();
      HeapPointer(Pointer($BAD)); // this is backpatched later by THEN ($BAD = 2989)
 end;
+
 procedure P_then();
 //var  backpatch, offset:TCell;
 begin
@@ -883,6 +885,19 @@ begin
      //offset := hptr - backpatch;
      //SetHeapCell(backpatch, offset);
      SetHeapCell(Pop(), hptr);
+end;
+
+procedure P_else();
+var where:Integer;
+begin
+     HeapifyWord('ABRANCH');
+     where := hptr;
+     HeapPointer(Pointer($BAD));
+     HeapifyWord('BRANCH');
+     P_then();
+     //HeapPointer(Pointer($BAD));
+     Push(where);
+
 end;
 procedure P_begin();
 begin
@@ -1287,6 +1302,7 @@ begin
           AddPrim(0, 'SWAP', @P_swap);
           AddPrim(0, 'NOT',  @P_not);
           AddPrim(1, 'IF', @P_if);
+          AddPrim(1, 'ELSE', @P_else);
           AddPrim(1, 'THEN', @P_then);
           AddPrim(1, 'BEGIN', @P_begin);
           AddPrim(1, 'AGAIN', @P_again);
