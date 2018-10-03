@@ -556,6 +556,12 @@ begin
      offset := GetHeapCell(rstack[rsp]);
      if Pop() = 0 then rstack[rsp] += offset else rstack[rsp] += sizeof(TCell);
 end;
+procedure P_0abranch();
+var offset:TCell;
+begin
+     offset := GetHeapCell(rstack[rsp]);
+     if Pop() = 0 then rstack[rsp] := offset else rstack[rsp] += sizeof(TCell);
+end;
 
 procedure P_backslash();
 begin
@@ -1237,6 +1243,7 @@ begin
         AddPrim(elit, 'BRANCH', @P_branch);
         AddPrim(elit, '0BRANCH', @P_0branch);
         AddPrim(elit, 'ABRANCH', @P_abranch);
+        AddPrim(elit, '0ABRANCH', @P_0abranch);
         AddPrim(0, ':', @P_colon);
         AddPrim(1, ';', @P_semicolon);
         AddPrim(0, 'CREATE', @P_create);
