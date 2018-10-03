@@ -1226,6 +1226,18 @@ begin
 
 end;
 
+procedure P_rot(); // ( a b c -- b c a)
+var a,b,c:TCell;
+begin
+     c := Pop();
+     b := Pop();
+     a := Pop();
+     Push(b);
+     Push(c);
+     Push(a);
+end;
+
+
 initialization
 begin
           hptr := 1;
@@ -1352,6 +1364,7 @@ begin
           AddPrim(0, 'xl', @P_xl);
 
           AddPrim(0, 'cat', @P_cat);
+          AddPrim(0, 'ROT', @P_rot);
 
           EvalString(': VARIABLE      create 0 , ;');
           EvalString(': CELLS         cell * ; \ n1 -- n2');
