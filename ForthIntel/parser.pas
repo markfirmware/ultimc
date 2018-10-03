@@ -687,9 +687,31 @@ var t1,t2:TCell;
 begin
         t1 := Pop();
         t2 := Pop();
-        //t3 := t1/t2;
         Push(t2 div t1);
 end;
+procedure P_gt();
+var t1,t2:TCell;
+begin
+        t1 := Pop();
+        t2 := Pop();
+        if t2 > t1 then Push(1) else Push(0);
+end;
+procedure P_lt();
+var t1,t2:TCell;
+begin
+        t1 := Pop();
+        t2 := Pop();
+        if t2 < t1 then Push(1) else Push(0);
+end;
+procedure P_eq();
+var t1,t2:TCell;
+begin
+        t1 := Pop();
+        t2 := Pop();
+        if t2 = t1 then Push(1) else Push(0);
+end;
+
+
 procedure P_dot();
 begin
         writeptr(Format('%D ', [Pop()])); // , ' ');
@@ -1287,11 +1309,16 @@ begin
 
         //lookup('create');
 
-                  AddPrim(0, '+', @P_plus);
+
+        AddPrim(0, '+', @P_plus);
           AddPrim(0, '-', @P_minus);
+
           AddPrim(0, '*', @P_mul);
           AddPrim(0, '/', @P_div);
           AddPrim(0, '.', @P_dot);
+          AddPrim(0, '>', @P_gt);
+          AddPrim(0, '<', @P_lt);
+          AddPrim(0, '=', @P_eq);
           AddPrim(0, 'DUP', @P_dup);
           AddPrim(0, '.S',  @P_printstack);
           AddPrim(0, 'INFO',  @P_info);
@@ -1312,7 +1339,11 @@ begin
           AddPrim(0, 'LATEST', @P_latest);
           AddPrim(0, '>HPTR', @P_to_hptr);
           AddPrim(0, 'SWAP', @P_swap);
+          EvalString(': NEG 0 swap - ;');
           AddPrim(0, 'NOT',  @P_not);
+          EvalString(': >= < NOT ;');
+          EvalString(': <= > NOT ;');
+          EvalString(': != = NOT ;');
           AddPrim(1, 'IF', @P_if);
           AddPrim(1, 'ELSE', @P_else);
           AddPrim(1, 'THEN', @P_then);
@@ -1374,6 +1405,7 @@ begin
           EvalString(': 2!            swap over ! cell+ ! ;');
           EvalString(': !0exit ` 0branch 2 cells , ` exit ; immediate');
           EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
+          EvalString(': 1- 1 - ;');
 
 end;
 
