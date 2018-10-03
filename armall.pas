@@ -22,7 +22,6 @@ uses
   , DWCOTG, Keyboard
   , FileSystem, MMC, FATFS
   , RemoteShell, ShellForth
-  , secondary
   , parser
 
   , texteditor
