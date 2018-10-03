@@ -23,7 +23,7 @@ ufw allow 5990 # classic vnc
 
 qemu-system-arm \
     -machine versatilepb -cpu cortex-a8 -m 256M \
-    -drive file=fipq/ultibo.img,if=sd,format=raw \
+    -drive file=ultimc-qemu-sd-fat12.img,if=sd,format=raw \
     -kernel fipq.lpi-kernel-qemuvpb.img \
     -display none \
     -vnc :90,websocket=5790 \

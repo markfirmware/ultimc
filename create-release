@@ -2,11 +2,11 @@
 set -e # exit script on any error
 
 LPR=fipq
-RELEASE_COUNTER=1
-RELEASE_VERSION=v$(date +%Y.%m.%d.%H%M)n$RELEASE_COUNTER
+RELEASE_NUMBER=4
+RELEASE_VERSION=v$RELEASE_NUMBER.$(date +%Y%m%d)
 REPO=ultimc
 ZIPFILE=$REPO-$RELEASE_VERSION.zip
-PATH=$HOME/hub-linux-arm-2.3.0-pre10/bin:$PATH
+TGZFILE=$REPO-$RELEASE_VERSION.tgz
 
 mkdir -p release
 rm -rf release/*
@@ -26,6 +26,12 @@ else
     popd
 fi
 
+DISK_IMAGE=ultimc-qemu-sd-fat12.img
+fallocate -l 100K $DISK_IMAGE
+mkfs.fat -F 12 $DISK_IMAGE
+cp $DISK_IMAGE release/
+
+cp linode-install-and-run release/
 cp -a *.img release/
 cp -a ForthIntel/core.4th release/
 cp -a $LPR-config.txt $LPR-cmdline.txt release/
@@ -34,10 +40,12 @@ echo "$REPO $RELEASE_VERSION" >> release/release-message.md
 echo >> release/release-message.md
 cat release-message.md >> release/release-message.md
 cp -a firmware/boot/bootcode.bin firmware/boot/start.elf firmware/boot/fixup.dat release/
-cd release
+pushd release
 zip $ZIPFILE *
 ls -lt $ZIPFILE
-cd ..
+tar czf $TGZFILE *
+ls -lt $TGZFILE
+popd
 
 if [ -d hub-tool ]
 then
@@ -52,4 +60,4 @@ else
     mv $HUB_TOOL_BASE hub-tool
 fi
 
-./hub-tool/bin/hub release create -d -p -F release/release-message.md -a release/$ZIPFILE $RELEASE_VERSION
+./hub-tool/bin/hub release create -d -p -F release/release-message.md -a release/$ZIPFILE -a release/$TGZFILE $RELEASE_VERSION
