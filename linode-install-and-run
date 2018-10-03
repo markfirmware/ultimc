@@ -21,10 +21,11 @@ ufw allow 5790 # websocket vnc
 ufw allow 5823 # telnet
 ufw allow 5990 # classic vnc
 
+echo starting qemu ...
 qemu-system-arm \
     -machine versatilepb -cpu cortex-a8 -m 256M \
     -drive file=ultimc-qemu-sd-fat12.img,if=sd,format=raw \
-    -kernel fipq.lpi-kernel-qemuvpb.img \
+    -kernel fipq-kernel-qemuvpb.img \
     -display none \
     -vnc :90,websocket=5790 \
     -net nic -net user,hostfwd=tcp::5823-:23 \
