@@ -1,4 +1,4 @@
-unit Edi;
+unit ed;
 
 {$mode objfpc}{$H+}
 
