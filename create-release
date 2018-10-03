@@ -2,7 +2,7 @@
 set -e # exit script on any error
 
 LPR=fipq
-RELEASE_NUMBER=4
+RELEASE_NUMBER=5
 RELEASE_VERSION=v$RELEASE_NUMBER.$(date +%Y%m%d)
 REPO=ultimc
 ZIPFILE=$REPO-$RELEASE_VERSION.zip
@@ -43,9 +43,10 @@ cp -a firmware/boot/bootcode.bin firmware/boot/start.elf firmware/boot/fixup.dat
 pushd release
 zip $ZIPFILE *
 ls -lt $ZIPFILE
-tar czf $TGZFILE *
-ls -lt $TGZFILE
 popd
+mv release/$ZIPFILE .
+tar czf $TGZFILE release/*
+ls -lt $TGZFILE
 
 if [ -d hub-tool ]
 then
@@ -60,4 +61,4 @@ else
     mv $HUB_TOOL_BASE hub-tool
 fi
 
-./hub-tool/bin/hub release create -d -p -F release/release-message.md -a release/$ZIPFILE -a release/$TGZFILE $RELEASE_VERSION
+./hub-tool/bin/hub release create -d -p -F release/release-message.md -a $ZIPFILE -a $TGZFILE $RELEASE_VERSION
