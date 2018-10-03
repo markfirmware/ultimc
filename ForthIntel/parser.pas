@@ -872,16 +872,17 @@ begin
 end;
 procedure P_if();
 begin
-     HeapPointer(P_find('0BRANCH'));
+     HeapPointer(P_find('0ABRANCH'));
      P_here();
      HeapPointer(Pointer($BAD)); // this is backpatched later by THEN ($BAD = 2989)
 end;
 procedure P_then();
-var  backpatch, offset:TCell;
+//var  backpatch, offset:TCell;
 begin
-     backpatch := Pop();
-     offset := hptr - backpatch;
-     SetHeapCell(backpatch, offset);
+     //backpatch := Pop();
+     //offset := hptr - backpatch;
+     //SetHeapCell(backpatch, offset);
+     SetHeapCell(Pop(), hptr);
 end;
 procedure P_begin();
 begin
