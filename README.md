@@ -8,7 +8,7 @@ The file `boot.4th` allows user-customisation of how the Forth starts. If you ar
 
 ## ARM-specific
 
-* [frambuffer](framebuffer.md)
+* [framebuffer](framebuffer.md)
 * [GPIO](GPIO.md)
 * serial port is being worked on by markfirmware. More details to follow.
 
