@@ -2,7 +2,7 @@
 set -e # exit script on any error
 
 LPR=fipq
-RELEASE_NUMBER=5
+RELEASE_NUMBER=6
 RELEASE_VERSION=v$RELEASE_NUMBER.$(date +%Y%m%d)
 REPO=ultimc
 ZIPFILE=$REPO-$RELEASE_VERSION.zip
