@@ -829,6 +829,11 @@ begin
      P_word();
      CreateReadStream(yytext);
 end;
+
+procedure P_included();
+begin
+     CreateReadStream(MakeString());
+end;
 procedure P_here();
 begin
      Push(hptr);
@@ -1247,6 +1252,7 @@ begin
           AddPrim(0, 'CELL', @P_cell);
           AddPrim(0, 'CLEARSTACK', @P_clearstack);
           AddPrim(0, 'INCLUDE', @P_include);
+          AddPrim(0, 'INCLUDED', @P_included);
           AddPrim(0, 'HERE', @P_here);
           AddPrim(0, 'ALLOT', @P_allot);
           AddPrim(0, 'IMMEDIATE', @P_immediate);
@@ -1311,6 +1317,7 @@ begin
           EvalString(': 0exit  ` not ` 0branch 2 cells , ` exit ; immediate');
           EvalString(': 1- 1 - ;');
           EvalString(': 2dup over over ;');
+          EvalString(': 2drop drop drop ;');
 
 end;
 

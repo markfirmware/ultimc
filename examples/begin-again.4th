@@ -10,4 +10,3 @@ countdown
 'counter --
 s" value of counter is " type 'counter @ .
 s" stack is " type .s
-bye

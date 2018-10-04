@@ -1,0 +1,27 @@
+fip
+Loading boot.4th...FAILED
+ ok
+ ok
+ ok
+ ok
+ ok
+
+
+Running fib.4th
+1346269 
+Expected: 1346269
+ ok
+
+
+Running begin-again.4th
+'COUNTER @ DUP . NOT 0BRANCH 16 EXIT 'COUNTER -- ABRANCH 1296 ; 10 9 8 7 6 5 4 3 2 1 0 value of counter is -1 stack is 1346269  ok
+
+
+Running if-then-else.4th
+this will be printed
+false branch called
+true branch called
+stack is:1346269 
+ ok
+1346269  ok
+fip exiting

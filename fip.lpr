@@ -4,8 +4,8 @@ uses engine;
 
 
 begin
-  writeln('FortIntel');
+  writeln('fip');
   MainRepl;
-  writeln('ForthIntel exiting');
+  writeln('fip exiting');
 end.
 
