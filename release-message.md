@@ -1,4 +1,4 @@
-# ultimc - forth on ultibo
+# ultimc - Forth on Ultibo
 
 # Requires:
 * any model of raspberry pi
@@ -13,6 +13,7 @@
         * this destroys the current contents of the sd card
     * download the zip file
     * unzip it to the sd card
+    * safely eject the sd card
 * insert the sd card into the pi
 * connect the pi to the tv using the hdmi cable
 * connect the pi to the usb keyboard
