@@ -1,6 +1,6 @@
-program ForthIntel;
+program fip;
 
-uses parser;
+uses engine;
 
 
 begin

@@ -3,6 +3,7 @@
 *.lps
 *.o
 *.ppu
+fip
 GimpPpmTest
 GluteTest
 backup/

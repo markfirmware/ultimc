@@ -5,7 +5,7 @@ procedure UltiboApiAddPrimitives;
 
 implementation
 uses
- parser,
+ engine,
  //globaltypes,globalconst,
  globalconfig,console,logging,serial,platform,ultibo;
 
