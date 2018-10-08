@@ -25,7 +25,8 @@ uses
 
   , engine
   , texteditor
-  , ultiboapi
+  , forthultiboapi
+  , forthprocessor
   , forthgpio
   ;
 
