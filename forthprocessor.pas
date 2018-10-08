@@ -3,16 +3,14 @@ unit ForthProcessor;
 interface
 type
  TFunctionReturningString = function:String;
- TProcedureTakingString = procedure(X:String);
+ TProcedureTakingString = procedure(S:String);
 
  TForthProcessor = class
  procedure Run (ReadLine:TFunctionReturningString;WriteLineProcedure:TProcedureTakingString;WriteStringProcedure:TProcedureTakingString);
  end;
 
-procedure CreateForthProcessors;
-
 implementation
-uses Threads, Serial, SysUtils;
+uses GlobalConst, Platform, Threads, Serial, SysUtils, MoreUltibo;
 
 procedure TForthProcessor.Run (ReadLine:TFunctionReturningString;WriteLineProcedure:TProcedureTakingString;WriteStringProcedure:TProcedureTakingString);
 var
@@ -22,37 +20,48 @@ begin
   begin
    Line:=ReadLine();
    if Line = 'bye' then
-    break
+    begin
+     break;
+    end
    else
-    WriteLineProcedure (Format ('results are sent by calling WriteLineProcedure and WriteStringProcedure', ['... output from the eval ...']));
+    begin
+     WriteLineProcedure (Format ('results are sent by calling WriteLineProcedure and WriteStringProcedure', ['... output from the eval ...']));
+    end;
   end;
 end;
 
-procedure CreateForthSerialProcessor (SerialDeviceNumber:Integer);
+procedure CreateForthSerialProcessor (SerialDevice:PSerialDevice);
 var
- SerialDeviceName:String;
  Processor:TForthProcessor;
 begin
- SerialDeviceName=Format('ARM PrimeCell PL011 UART (UART%d)',[SerialDeviceNumber]));
- Processor:=TForthProcessor.Create;
+ if SerialDeviceOpen (SerialDevice,9600,SERIAL_DATA_8BIT,SERIAL_STOP_1BIT,SERIAL_PARITY_NONE,SERIAL_FLOW_NONE,0,0) = ERROR_SUCCESS then
+  begin
+   SerialDeviceWriteLine(SerialDevice, 'forth ready and waiting ...');
+   Processor:=TForthProcessor.Create;
+  end;
 end;
 
 procedure CreateForthProcessors;
 var
  SerialDeviceNumber:Integer;
+ SerialDevice:PSerialDevice;
  ProcessorName:String;
 begin
-  if BoardGetType = BoardTypeQemu then
-   begin
-    for SerialDeviceNumber:=0 to 3 do
-     begin
-      ProcessorName:=SysUtils.GetEnvironmentVariable(Format('SERIAL%d_PROCESSOR',[SerialDeviceNumber]));
-      if UpperCase(ProcessorName) = 'FORTH' then
-       CreateForthSerialProcessor(SerialDeviceNumber);
-   end;
+ if BoardGetType = BOARD_TYPE_QEMUVPB then
+  begin
+   for SerialDeviceNumber:=0 to 3 do
+    begin
+     SerialDevice:=SerialDeviceFindByName(Format('Serial%d',[SerialDeviceNumber]));
+     if SerialDevice <> Nil then
+      begin
+       ProcessorName:=SysUtils.GetEnvironmentVariable(Format('SERIAL%d_PROCESSOR',[SerialDeviceNumber]));
+       if UpperCase(ProcessorName) = 'FORTH' then
+        CreateForthSerialProcessor(SerialDevice);
+      end;
+    end;
+  end;
 end;
 
-intialization
-CreateForthProcessors;
-
+initialization
+ CreateForthProcessors;
 end.

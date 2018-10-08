@@ -27,12 +27,11 @@ function buildmode {
 
 buildmode $LPINAME QEMUVPB
 
-
 if [[ $PURPOSE = "-just-cli" ]]
 then
     DISPLAY="-display none"
     SERIAL="-serial stdio"
-    CMDLINE=""
+    CMDLINE="SERIAL0_PROCESSOR=FORTH"
 else
     DISPLAY=""
     SERIAL="-serial vc -serial vc -serial vc -serial vc"
