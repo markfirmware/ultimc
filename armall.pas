@@ -12,6 +12,7 @@ uses
   , FrameBuffer
   , GlobalConst
   , GlobalTypes
+  , GlobalConfig
   , Keymap
   , Keymap_UK
   , Platform
@@ -22,6 +23,8 @@ uses
   , DWCOTG, Keyboard
   , FileSystem, MMC, FATFS
   , RemoteShell, ShellForth
+  , Logging
+  , Serial
 
   , engine
   , texteditor
@@ -132,9 +135,19 @@ begin
  FramebufferDeviceFillRect(Fb, x0, y0, x1, y1, rgb1, FRAMEBUFFER_TRANSFER_DMA);
 end;
 
+procedure StartSerialLogging;
+begin
+ LOGGING_INCLUDE_COUNTER:=False;
+ LOGGING_INCLUDE_TICKCOUNT:=True;
+ SERIAL_REGISTER_LOGGING:=True;
+ SerialLoggingDeviceAdd(SerialDeviceGetDefault);
+ SERIAL_REGISTER_LOGGING:=False;
+ LoggingDeviceSetDefault(LoggingDeviceFindByType(LOGGING_TYPE_SERIAL));
+end;
 
 initialization
 begin
+  StartSerialLogging;
   ReadLinePtr := @ReadLnConsole;
   c_drive_required := True;
   AddPrim(0, 'FBRECT', @P_fbrect);

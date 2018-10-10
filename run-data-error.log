@@ -1,0 +1,160 @@
+
+
+See these lines (repeated here):
+
+00000000000005F2 - 005F5018 - [ERROR] Threads: WorkerThread: Exception: Data abort at 0020A228
+00000000000006AC - 00638CE8 - [ERROR] MMC: SD Switch Highspeed host does not support Highspeed
+
+----------------------
+
+
+
++ LPINAME=fipq
++ buildmode fipq QEMUVPB
++ LPINAME=fipq
++ MODE=QEMUVPB
++ echo
+
++ echo building fipq QEMUVPB ...
+building fipq QEMUVPB ...
++ rm -rf lib/
+++ pwd
++ WD=/root/20181009-coverage/github.com/markfirmware/ultimc
++ '[' -d /c/Ultibo/Core ']'
++ '[' -d /root/ultibo/core ']'
++ LAZDIR=/root/ultibo/core
++ pushd /root/ultibo/core
++ rm -f 'kernel*.img' kernel.bin
++ ./lazbuild --build-mode=BUILD_MODE_QEMUVPB /root/20181009-coverage/github.com/markfirmware/ultimc/fipq.lpi
+using config file /root/ultibo/core/lazarus.cfg
+Hint: (lazarus) [RunTool] /root/ultibo/core/fpc/bin/fpc "-iWTOTP"
+Hint: (lazarus) [RunTool] /root/ultibo/core/fpc/bin/fpc "-va" "compilertest.pas"
+TProject.DoLoadStateFile Statefile not found: /root/20181009-coverage/github.com/markfirmware/ultimc/lib/arm-ultibo/fipq.compiled
+Hint: (lazarus) [RunTool] /root/ultibo/core/fpc/bin/fpc "-iWTOTP" "-Parm" "-Tultibo"
+Hint: (lazarus) [RunTool] /root/ultibo/core/fpc/bin/fpc "-va" "-Parm" "-Tultibo" "compilertest.pas"
+Info: (lazarus) Execute Title="Compile Project, Mode: BUILD_MODE_QEMUVPB, OS: ultibo, CPU: arm, Target: fipq"
+Info: (lazarus) Working Directory="/root/20181009-coverage/github.com/markfirmware/ultimc/"
+Info: (lazarus) Executable="/root/ultibo/core/fpc/bin/fpc"
+Info: (lazarus) Param[0]="-B"
+Info: (lazarus) Param[1]="-Tultibo"
+Info: (lazarus) Param[2]="-Parm"
+Info: (lazarus) Param[3]="-CpARMV7A"
+Info: (lazarus) Param[4]="-WpQEMUVPB"
+Info: (lazarus) Param[5]="@/root/ultibo/core/fpc/bin/QEMUVPB.CFG"
+Info: (lazarus) Param[6]="-MObjFPC"
+Info: (lazarus) Param[7]="-Scghi"
+Info: (lazarus) Param[8]="-CX"
+Info: (lazarus) Param[9]="-O2"
+Info: (lazarus) Param[10]="-XX"
+Info: (lazarus) Param[11]="-l"
+Info: (lazarus) Param[12]="-vewnhibq"
+Info: (lazarus) Param[13]="-Fi/root/20181009-coverage/github.com/markfirmware/ultimc/lib/arm-ultibo"
+Info: (lazarus) Param[14]="-Fu/root/20181009-coverage/github.com/markfirmware/ultimc/"
+Info: (lazarus) Param[15]="-FU/root/20181009-coverage/github.com/markfirmware/ultimc/lib/arm-ultibo/"
+Info: (lazarus) Param[16]="-dBUILD_MODE_QEMUVPB"
+Info: (lazarus) Param[17]="-dUSES_ARM"
+Info: (lazarus) Param[18]="fipq.lpr"
+Hint: (11030) Start of reading config file /root/ultibo/core/fpc/etc/fpc.cfg
+Hint: (11031) End of reading config file /root/ultibo/core/fpc/etc/fpc.cfg
+Hint: (11030) Start of reading config file /root/ultibo/core/fpc/bin/QEMUVPB.CFG
+Hint: (11031) End of reading config file /root/ultibo/core/fpc/bin/QEMUVPB.CFG
+Free Pascal Compiler version 3.1.1 [2018/10/10] for arm
+Copyright (c) 1993-2015 by Florian Klaempfl and others
+(1002) Target OS: Ultibo
+(3104) Compiling fipq.lpr
+(3104) Compiling armall.pas
+(3104) Compiling ShellForth.pas
+/root/20181009-coverage/github.com/markfirmware/ultimc/ShellForth.pas(45,19) Hint: (5023) Unit "GlobalConst" not used in ShellForth
+/root/20181009-coverage/github.com/markfirmware/ultimc/ShellForth.pas(45,31) Hint: (5023) Unit "GlobalTypes" not used in ShellForth
+/root/20181009-coverage/github.com/markfirmware/ultimc/ShellForth.pas(45,103) Hint: (5023) Unit "UltiboClasses" not used in ShellForth
+/root/20181009-coverage/github.com/markfirmware/ultimc/ShellForth.pas(45,117) Hint: (5023) Unit "UltiboUtils" not used in ShellForth
+(9009) Assembling shellforth
+(3104) Compiling engine.pas
+(9009) Assembling engine
+(3104) Compiling texteditor.pas
+/root/20181009-coverage/github.com/markfirmware/ultimc/texteditor.pas(117,13) Hint: (5057) Local variable "R" does not seem to be initialized
+/root/20181009-coverage/github.com/markfirmware/ultimc/texteditor.pas(182,13) Hint: (5057) Local variable "R" does not seem to be initialized
+/root/20181009-coverage/github.com/markfirmware/ultimc/texteditor.pas(215,13) Hint: (5057) Local variable "R" does not seem to be initialized
+/root/20181009-coverage/github.com/markfirmware/ultimc/texteditor.pas(241,13) Hint: (5057) Local variable "R" does not seem to be initialized
+(9009) Assembling texteditor
+(3104) Compiling ultiboapi.pas
+/root/20181009-coverage/github.com/markfirmware/ultimc/ultiboapi.pas(47,46) Warning: (5036) Local variable "Y2" does not seem to be initialized
+/root/20181009-coverage/github.com/markfirmware/ultimc/ultiboapi.pas(47,40) Warning: (5036) Local variable "Y1" does not seem to be initialized
+(9009) Assembling ultiboapi
+(3104) Compiling forthgpio.pas
+(9009) Assembling forthgpio
+/root/20181009-coverage/github.com/markfirmware/ultimc/armall.pas(128,20) Hint: (4035) Mixing signed expressions and longwords gives a 64bit result
+(9009) Assembling armall
+(9009) Assembling fipq
+(9015) Linking fipq
+(1008) 2326 lines compiled, 1.2 sec, 2558015 bytes code, 176811 bytes data
+(1021) 2 warning(s) issued
+(1022) 13 hint(s) issued
++ popd
++ mv kernel.bin fipq-kernel-qemuvpb.img
++ qemu-system-arm -machine versatilepb -cpu cortex-a8 -m 256M -drive file=fipq/ultibo.img,if=sd,format=raw -kernel fipq-kernel-qemuvpb.img -serial stdio -display none -append ''
+pulseaudio: pa_context_connect() failed
+pulseaudio: Reason: Connection refused
+pulseaudio: Failed to initialize PA contextaudio: Could not init `pa' audio driver
+ALSA lib confmisc.c:767:(parse_card) cannot find card '0'
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_card_driver returned error: No such file or directory
+ALSA lib confmisc.c:392:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1246:(snd_func_refer) error evaluating name
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5007:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2495:(snd_pcm_open_noupdate) Unknown PCM default
+alsa: Could not initialize DAC
+alsa: Failed to open `default':
+alsa: Reason: No such file or directory
+ALSA lib confmisc.c:767:(parse_card) cannot find card '0'
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_card_driver returned error: No such file or directory
+ALSA lib confmisc.c:392:(snd_func_concat) error evaluating strings
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_concat returned error: No such file or directory
+ALSA lib confmisc.c:1246:(snd_func_refer) error evaluating name
+ALSA lib conf.c:4528:(_snd_config_evaluate) function snd_func_refer returned error: No such file or directory
+ALSA lib conf.c:5007:(snd_config_expand) Evaluate error: No such file or directory
+ALSA lib pcm.c:2495:(snd_pcm_open_noupdate) Unknown PCM default
+alsa: Could not initialize DAC
+alsa: Failed to open `default':
+alsa: Reason: No such file or directory
+audio: Failed to create voice `lm4549.out'
+00443DF0 - Device: Sending device notification (Name=USBHost0 Class=DEVICE_CLASS_USBHOST Notification=DEVICE_NOTIFICATION_REGISTER)
+00443DF0 - Device: Registered device (Handle=00D03FC0 Class=DEVICE_CLASS_USBHOST Name=USBHost0)
+0067DA10 - Network: IP: Configuring adapter Loopback with CONFIG_TYPE_LOOPBACK
+007053B0 - Device: Sending device notification (Name=Network0 Class=DEVICE_CLASS_NETWORK Notification=DEVICE_NOTIFICATION_OPEN)
+007053B0 - Device: Sending device notification (Name=Network0 Class=DEVICE_CLASS_NETWORK Notification=DEVICE_NOTIFICATION_UP)
+00000000000005A4 - 00443DF0 - Device: Sending device notification (Name=Logging2 Class=DEVICE_CLASS_LOGGING Notification=DEVICE_NOTIFICATION_REGISTER)
+00000000000005A5 - 00443DF0 - Device: Registered device (Handle=01119D3C Class=DEVICE_CLASS_LOGGING Name=Logging2)
+00000000000005B3 - 00443DF0 - Device: Sending device notification (Name=Serial0 Class=DEVICE_CLASS_SERIAL Notification=DEVICE_NOTIFICATION_OPENING)
+00000000000005CF - 00443DF0 - Device: Sending device notification (Name=UART0 Class=DEVICE_CLASS_UART Notification=DEVICE_NOTIFICATION_ENABLE)
+00000000000005D0 - 00443DF0 - Device: Sending device notification (Name=Serial0 Class=DEVICE_CLASS_SERIAL Notification=DEVICE_NOTIFICATION_OPEN)
+00000000000005D5 - 00443DF0 - Device: Sending device notification (Name=Logging2 Class=DEVICE_CLASS_LOGGING Notification=DEVICE_NOTIFICATION_ENABLE)
+00000000000005ED - 0067DA10 - Network: IP: Configuration completed for adapter Loopback
+00000000000005ED - 0067DA10 - Network: IP:  Config = CONFIG_TYPE_LOOPBACK
+00000000000005F1 - 007D1A78 - Device: Allocated device notification (Handle=015B3A64 Device=00000000 Class=DEVICE_CLASS_STORAGE Notification=DEVICE_NOTIFICATION_REGISTER, DEVICE_NOTIFICATION_DEREGISTER, DEVICE_NOTIFICATION_INSERT, DEVICE_NOTIFICATION_EJECT, DEVICE_NOTIFICATION_EJECTING)
+00000000000005F2 - 005F5018 - [ERROR] Threads: WorkerThread: Exception: Data abort at 0020A228
+00000000000005F5 - 0067DA10 - Network: IP:  Address = 127.0.0.1
+00000000000005F6 - 0067DA10 - Network: IP:  Netmask = 255.0.0.0
+00000000000005F6 - 0067DA10 - Network: IP:  Gateway = 0.0.0.0
+0000000000000608 - 0067DA10 - Network: IP:  Server = 0.0.0.0
+0000000000000623 - 00638CE8 - Device: Sending device notification (Name=MMC0 Class=DEVICE_CLASS_MMC Notification=DEVICE_NOTIFICATION_REGISTER)
+0000000000000628 - 00638CE8 - Device: Registered device (Handle=015B3390 Class=DEVICE_CLASS_MMC Name=MMC0)
+000000000000063F - 00638CE8 - Device: Sending device notification (Name=Storage0 Class=DEVICE_CLASS_STORAGE Notification=DEVICE_NOTIFICATION_REGISTER)
+0000000000000685 - 00638CE8 - Device: Registered device (Handle=00D01564 Class=DEVICE_CLASS_STORAGE Name=Storage0)
+0000000000000687 - 00638CE8 - Device: Sending device notification (Name=SDHCI1 Class=DEVICE_CLASS_SDHCI Notification=DEVICE_NOTIFICATION_ENABLE)
+00000000000006AC - 00638CE8 - [ERROR] MMC: SD Switch Highspeed host does not support Highspeed
+00000000000006BE - 00638CE8 - Device: Sending device notification (Name=MMC1 Class=DEVICE_CLASS_MMC Notification=DEVICE_NOTIFICATION_REGISTER)
+00000000000006BE - 00638CE8 - Device: Registered device (Handle=005F74A8 Class=DEVICE_CLASS_MMC Name=MMC1)
+00000000000006C5 - 00638CE8 - Device: Sending device notification (Name=Storage1 Class=DEVICE_CLASS_STORAGE Notification=DEVICE_NOTIFICATION_REGISTER)
+00000000000006C5 - 00638CE8 - Device: Registered device (Handle=010822E8 Class=DEVICE_CLASS_STORAGE Name=Storage1)
+00000000000006C9 - 00638CE8 - Device: Sending device notification (Name=SDHCI0 Class=DEVICE_CLASS_SDHCI Notification=DEVICE_NOTIFICATION_ENABLE)
+00000000000006C9 - 00638CE8 - Device: Sending device notification (Name=MMC1 Class=DEVICE_CLASS_MMC Notification=DEVICE_NOTIFICATION_INSERT)
+00000000000006CE - 00638CE8 - Device: Sending device notification (Name=Storage1 Class=DEVICE_CLASS_STORAGE Notification=DEVICE_NOTIFICATION_INSERT)
+00000000000009FF - 006C16E0 - Network: IP: Configuring adapter Network0 with CONFIG_TYPE_DHCP
+0000000000000E0B - 006C16E0 - Network: IP: Configuration completed for adapter Network0
+0000000000000E0C - 006C16E0 - Network: IP:  Config = CONFIG_TYPE_DHCP
+0000000000000E0D - 006C16E0 - Network: IP:  Address = 10.0.2.15
+0000000000000E0E - 006C16E0 - Network: IP:  Netmask = 255.255.255.0
+0000000000000E0E - 006C16E0 - Network: IP:  Gateway = 10.0.2.2
+0000000000000E10 - 006C16E0 - Network: IP:  Server = 10.0.2.2
